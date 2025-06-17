@@ -24,12 +24,6 @@ load_dotenv()
 
 config = load_config()
 
-def set_model(model):
-    config["model"] = model
-    save_config(config)
-
-def get_model():
-    return config.get("model", "gpt-4")
 
 # Resume format conversion (PDF to Markdown)
 def convert_pdf_to_md(pdf_path, output_path):
