@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from litellm import completion
 from diff_match_patch import diff_match_patch
 from flask import Flask, request, jsonify, render_template
-from config import load_config, save_config
+from config import load_config, save_config, set_model
 
 from commands import (
     optimize_resume,
