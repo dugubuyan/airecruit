@@ -22,35 +22,14 @@ def set_model(model):
 def get_model():
     return config.get("model", "gpt-4")
 
-# Resume Optimizer
-def optimize_resume(jd, resume):
-    prompt = f"根据以下职位描述优化简历内容，使其更符合岗位需求：\n职位描述：{jd}\n当前简历：{resume}"
-    return completion(model=get_model(), messages=[{"role": "user", "content": prompt}])
-
-# Cover Letter Generator
-def generate_cover_letter(jd, resume):
-    prompt = f"根据以下职位描述和简历生成一封cover letter：\n职位描述：{jd}\n简历：{resume}"
-    return completion(model=get_model(), messages=[{"role": "user", "content": prompt}])
-
-# Resume Summary
-def summarize_resume(resume):
-    prompt = f"请总结下面的简历内容，突出特点但隐藏敏感信息：\n{resume}"
-    return completion(model=get_model(), messages=[{"role": "user", "content": prompt}])
-
-# Resume Filters to SQL
-def resume_to_sql_filters(resume):
-    prompt = f"请为以下简历内容生成适用于BOSS直聘/猎聘的筛选条件，并生成SQL插入语句：\n{resume}"
-    return completion(model=get_model(), messages=[{"role": "user", "content": prompt}])
-
-# Recommendation Letter Generator
-def generate_recommendation(jd, resume):
-    prompt = f"根据以下职位描述和简历撰写推荐信：\n职位描述：{jd}\n简历：{resume}"
-    return completion(model=get_model(), messages=[{"role": "user", "content": prompt}])
-
-# Contact Info Extractor and Email Sender
-def extract_contact_and_send(jd):
-    prompt = f"提取以下职位描述中的联系邮箱或方式：\n{jd}"
-    return completion(model=get_model(), messages=[{"role": "user", "content": prompt}])
+from commands import (
+    optimize_resume,
+    generate_cover_letter,
+    summarize_resume,
+    resume_to_sql_filters,
+    generate_recommendation,
+    extract_contact_and_send
+)
 
 # Resume format conversion (PDF to Markdown)
 def convert_pdf_to_md(pdf_path, output_path):
