@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI简历优化助手</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" rel="stylesheet">
+    <style>
+        .diff-container { background: #f8f9fa; padding: 15px; border-radius: 5px; }
+        textarea { height: 400px; font-family: monospace; }
+        .nav-link.active { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="mb-4">AI简历优化系统</h1>
+        
+        <div class="row g-4">
+            <!-- 输入区 -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">输入区</h5>
+                        <div class="mb-3">
+                            <label class="form-label">职位描述</label>
+                            <textarea id="jd" class="form-control" placeholder="粘贴职位描述..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">原始简历</label>
+                            <textarea id="resume" class="form-control" placeholder="粘贴简历内容..."></textarea>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="optimizeResume()">开始优化</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果区 -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">优化结果</h5>
+                        <ul class="nav nav-tabs mb-3">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#optimized" data-bs-toggle="tab">优化内容</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#diff" data-bs-toggle="tab">修改对比</a>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="optimized">
+                                <pre id="optimized-content" class="diff-container"></pre>
+                            </div>
+                            <div class="tab-pane" id="diff">
+                                <div id="diff-view" class="diff-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+    
+    <script>
+        function optimizeResume() {
+            const jd = $('#jd').val();
+            const resume = $('#resume').val();
+            
+            fetch('/api/optimize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jd, resume })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 显示优化后的内容
+                $('#optimized-content').text(data.optimized);
+                
+                // 生成diff对比
+                const diff = diffToString(data.optimized, resume);
+                const diffHtml = Diff2Html.getPrettyHtml(diff, {
+                    inputFormat: 'diff',
+                    showFiles: false,
+                    matching: 'lines'
+                });
+                $('#diff-view').html(diffHtml);
+                
+                // 激活第一个标签页
+                $('.nav-link').first().tab('show');
+            });
+        }
+
+        function diffToString(newText, oldText) {
+            const dmp = new diff_match_patch();
+            const diffs = dmp.diff_main(oldText, newText);
+            dmp.diff_cleanupSemantic(diffs);
+            return dmp.patch_toText(dmp.patch_make(diffs));
+        }
+    </script>
+</body>
+</html>
