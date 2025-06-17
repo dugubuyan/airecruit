@@ -10,6 +10,15 @@ from diff_match_patch import diff_match_patch
 from flask import Flask, request, jsonify, render_template
 from config import load_config, save_config
 
+from commands import (
+    optimize_resume,
+    generate_cover_letter,
+    summarize_resume,
+    resume_to_sql_filters,
+    generate_recommendation,
+    extract_contact_and_send
+)
+
 # Load environment variables
 load_dotenv()
 
@@ -21,15 +30,6 @@ def set_model(model):
 
 def get_model():
     return config.get("model", "gpt-4")
-
-from commands import (
-    optimize_resume,
-    generate_cover_letter,
-    summarize_resume,
-    resume_to_sql_filters,
-    generate_recommendation,
-    extract_contact_and_send
-)
 
 # Resume format conversion (PDF to Markdown)
 def convert_pdf_to_md(pdf_path, output_path):
