@@ -13,3 +13,12 @@ __all__ = [
     'generate_recommendation',
     'extract_contact_and_send'
 ]
+
+WORK_COMMANDS = [
+    'optimize',
+    'summarize',
+    'cover-letter',
+    'filters',
+    'recommend',
+    'contact'
+]

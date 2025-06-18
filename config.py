@@ -15,7 +15,13 @@ def load_config():
         'default_model': 'ollama/mistral:7b-instruct',
         'last_model': None,
         'model': 'ollama/mistral:7b-instruct',
-        'workspace_files': []
+        'workspace_files': [],
+        'supported_models': [
+            'ollama/mistral:7b-instruct',
+            'openai/gpt-4',
+            'anthropic/claude-2',
+            'cohere/command-nightly'
+        ]
     }
     default_config.update(config)
     return default_config

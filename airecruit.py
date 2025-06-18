@@ -31,7 +31,9 @@ config = load_config()
 def chat_mode():
     """交互式聊天模式"""
     from prompt_toolkit.completion import WordCompleter
-    command_completer = WordCompleter(['/add', '/model', '/ls', '/exit', '/help'], ignore_case=True)
+    command_completer = WordCompleter([
+        '/file', '/model', '/work', '/exit', '/help'
+    ], ignore_case=True)
     
     session = PromptSession(
         history=FileHistory('.airecruit_history'),
@@ -44,12 +46,19 @@ def chat_mode():
         try:
             text = session.prompt('> ')
             
-            if text.startswith('/add'):
-                parts = text.split()
+            elif text.startswith('/file'):
+                parts = text.split(maxsplit=2)
                 if len(parts) < 2:
-                    print("错误：请指定要添加的文件，格式为/add <文件路径>...")
+                    print("文件操作命令格式：/file <add|ls|drop> [参数]")
                     continue
-                files = parts[1:]
+                
+                subcmd = parts[1].lower()
+                
+                if subcmd == 'add':
+                    if len(parts) < 3:
+                        print("错误：请指定要添加的文件，格式为/file add <文件路径>...")
+                        continue
+                    files = parts[2].split()
                 added = []
                 for f in files:
                     file_path = Path(f)
@@ -83,14 +92,23 @@ def chat_mode():
             elif text.startswith('/model'):
                 parts = text.split(maxsplit=1)
                 if len(parts) < 2:
-                    print("错误：请指定模型名称，格式为/command <模型名称>")
+                    print("错误：命令格式为/model <ls|模型名称>")
                     continue
+                
+                if parts[1].lower() == 'ls':
+                    print("支持的模型列表：")
+                    for model in config.get('supported_models', []):
+                        print(f"- {model}")
+                    continue
+                
                 new_model = parts[1]
                 try:
+                    if new_model not in config.get('supported_models', []):
+                        raise ValueError(f"不支持该模型，请使用/model ls查看支持列表")
                     set_model(new_model)
                     print(f"模型已设置为：{new_model}")
                 except ValueError as e:
-                    print(f"无效的模型格式：{str(e)}")
+                    print(f"错误：{str(e)}")
                 
             elif text == '/exit':
                 break
@@ -103,19 +121,37 @@ def chat_mode():
                       "/exit              退出程序\n"
                       "/help             显示帮助信息")
                       
-            elif text == '/ls':
-                if not workspace_files:
-                    print("工作区暂无文件")
-                else:
-                    print("工作区文件列表：")
-                    for f in workspace_files:
-                        file_path = Path(f)
-                        print(f"- {f} (最后修改时间：{file_path.stat().st_mtime:.0f})")
+            elif text.startswith('/work'):
+                parts = text.split(maxsplit=2)
+                if len(parts) < 2:
+                    print("工作命令格式：/work <command> [参数]")
+                    print("可用命令：" + ", ".join(WORK_COMMANDS))
+                    continue
+                
+                command = parts[1].lower()
+                args = parts[2] if len(parts) > 2 else ""
+                
+                try:
+                    if command == 'optimize':
+                        # 示例参数解析逻辑
+                        params = args.split(';')
+                        if len(params) < 2:
+                            raise ValueError("需要JD和简历参数，格式：optimize <JD> ; <resume>")
+                        result = optimize_resume(params[0], params[1])
+                        print("优化结果：\n" + result)
+                    # 其他命令处理逻辑...
+                    else:
+                        print(f"未知工作命令：{command}")
+                except Exception as e:
+                    print(f"执行命令出错：{str(e)}")
             
+            elif text.startswith('/file'):
+                # 已处理的file命令分支
+                pass
             elif text.startswith('/'):
                 print(f"未知命令：{text.split()[0]}")
                 print("请输入有效命令，可用命令列表：")
-                print("/add, /model, /ls, /exit, /help")
+                print("/file, /model, /work, /exit, /help")
                 
             else:
                 # 构造包含工作区文件的上下文
