@@ -46,48 +46,90 @@ def chat_mode():
         try:
             text = session.prompt('> ')
             
-            if text.startswith('/file'):
-                parts = text.split(maxsplit=2)
-                if len(parts) < 2:
-                    print("文件操作命令格式：/file <add|ls|drop> [参数]")
-                    continue
+            if text == '/file':
+                # 进入文件管理子菜单
+                print("\n文件管理操作：")
+                print("1. 添加文件到工作区")
+                print("2. 列出工作区文件")
+                print("3. 移除工作区文件")
+                print("0. 返回主菜单")
                 
-                subcmd = parts[1].lower()
-                
-                if subcmd == 'add':
-                    if len(parts) < 3:
-                        print("错误：请指定要添加的文件，格式为/file add <文件路径>...")
-                        continue
-                    files = parts[2].split()
-                added = []
-                for f in files:
-                    file_path = Path(f)
-                    if not file_path.exists():
-                        print(f"文件不存在：{f}")
-                        continue
-                    
-                    # 转换并添加文件
-                    if file_path.suffix.lower() in ('.pdf', '.docx'):
-                        # 生成对应的md文件路径
-                        md_path = file_path.with_suffix('.md')
-                        try:
-                            if file_path.suffix.lower() == '.pdf':
-                                convert_pdf_to_md(str(file_path), str(md_path))
-                            else:
-                                convert_docx_to_md(str(file_path), str(md_path))
-                            workspace_files.append(str(md_path.resolve()))
-                            added.append(str(md_path))
-                        except Exception as e:
-                            print(f"转换文件 {f} 失败：{str(e)}")
-                    elif file_path.suffix.lower() in ('.txt', '.md'):
-                        workspace_files.append(str(file_path.resolve()))
-                        added.append(str(file_path))
-                    else:
-                        print(f"跳过不支持的文件类型：{file_path.suffix}")
-                workspace_files = list(set(workspace_files))  # 去重
-                config['workspace_files'] = workspace_files
-                save_config(config)
-                print(f"已添加文件到工作区：{', '.join(added)}")
+                while True:
+                    try:
+                        choice = session.prompt('file> ')
+                        
+                        if choice == '0':
+                            break
+                            
+                        # 显示当前工作区文件
+                        print("\n当前工作区文件：")
+                        for i, f in enumerate(workspace_files, 1):
+                            print(f"{i}. {f}")
+                        print()
+                        
+                        if choice == '1':
+                            file_paths = session.prompt("请输入要添加的文件路径（多个文件用空格分隔）: ")
+                            if not file_paths.strip():
+                                print("操作已取消")
+                                continue
+                                
+                            added = []
+                            for f in file_paths.split():
+                                file_path = Path(f)
+                                if not file_path.exists():
+                                    print(f"文件不存在：{f}")
+                                    continue
+                                
+                                # 转换并添加文件
+                                if file_path.suffix.lower() in ('.pdf', '.docx'):
+                                    md_path = file_path.with_suffix('.md')
+                                    try:
+                                        if file_path.suffix.lower() == '.pdf':
+                                            convert_pdf_to_md(str(file_path), str(md_path))
+                                        else:
+                                            convert_docx_to_md(str(file_path), str(md_path))
+                                        workspace_files.append(str(md_path.resolve()))
+                                        added.append(str(md_path))
+                                    except Exception as e:
+                                        print(f"转换文件 {f} 失败：{str(e)}")
+                                elif file_path.suffix.lower() in ('.txt', '.md'):
+                                    workspace_files.append(str(file_path.resolve()))
+                                    added.append(str(file_path))
+                                else:
+                                    print(f"跳过不支持的文件类型：{file_path.suffix}")
+                            
+                            if added:
+                                workspace_files = list(set(workspace_files))  # 去重
+                                config['workspace_files'] = workspace_files
+                                save_config(config)
+                                print(f"已添加文件：{', '.join(added)}")
+                                
+                        elif choice == '2':
+                            pass  # 前面已经显示过文件列表
+                            
+                        elif choice == '3':
+                            to_remove = session.prompt("请输入要移除的文件编号（多个用空格分隔）: ")
+                            try:
+                                indexes = [int(i)-1 for i in to_remove.split()]
+                                removed = []
+                                new_files = []
+                                for i, f in enumerate(workspace_files):
+                                    if i in indexes:
+                                        removed.append(f)
+                                    else:
+                                        new_files.append(f)
+                                workspace_files = new_files
+                                config['workspace_files'] = workspace_files
+                                save_config(config)
+                                print(f"已移除文件：{', '.join(removed)}")
+                            except (ValueError, IndexError):
+                                print("错误：请输入有效的文件编号")
+                                
+                        else:
+                            print("错误：无效选项，请输入 0-3 的数字")
+                            
+                    except (KeyboardInterrupt, EOFError):
+                        break
                 
             elif text.startswith('/model'):
                 parts = text.split(maxsplit=1)
@@ -115,9 +157,7 @@ def chat_mode():
                 
             elif text == '/help':
                 print("可用命令：\n"
-                      "/file add <路径>... 添加文件到工作区\n"
-                      "/file ls          列出工作区文件\n" 
-                      "/file drop <文件> 移除工作区文件\n"
+                      "/file             文件管理菜单\n"
                       "/model ls         查看支持模型列表\n"
                       "/model <名称>     设置LLM模型\n"
                       "/work <命令>      执行工作命令\n"
