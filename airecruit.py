@@ -92,10 +92,22 @@ def chat_mode():
                 context = []
                 for f in workspace_files:
                     try:
-                        with open(f) as file:
-                            context.append(f"文件 {f} 内容：\n{file.read()}")
+                        file_path = Path(f)
+                        # 只处理文本文件和PDF文件
+                        if file_path.suffix.lower() in ('.txt', '.md'):
+                            with open(f, 'r', encoding='utf-8') as file:
+                                context.append(f"文件 {f} 内容：\n{file.read()}")
+                        elif file_path.suffix.lower() == '.pdf':
+                            # 使用临时文件保存转换后的文本
+                            temp_md = file_path.with_suffix('.temp.md')
+                            convert_pdf_to_md(f, temp_md)
+                            with open(temp_md, 'r', encoding='utf-8') as file:
+                                context.append(f"PDF文件 {f} 转换内容：\n{file.read()}")
+                            temp_md.unlink()  # 删除临时文件
+                        else:
+                            print(f"跳过不支持的文件类型：{f}")
                     except Exception as e:
-                        print(f"读取文件 {f} 出错：{str(e)}")
+                        print(f"处理文件 {f} 出错：{str(e)}")
                 
                 response = completion(
                     model=get_model(),
