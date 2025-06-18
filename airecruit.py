@@ -9,6 +9,9 @@ from litellm import completion
 from diff_match_patch import diff_match_patch
 import shlex
 from flask import Flask, request, jsonify, render_template
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from pathlib import Path
 from config import load_config, save_config, set_model
 
 from commands import (
@@ -24,6 +27,67 @@ from commands import (
 load_dotenv()
 
 config = load_config()
+
+def chat_mode():
+    """交互式聊天模式"""
+    session = PromptSession(history=FileHistory('.airecruit_history'))
+    workspace_files = config.get('workspace_files', [])
+    
+    print("欢迎进入AI招聘助手聊天模式（输入/help查看帮助）")
+    while True:
+        try:
+            text = session.prompt('> ')
+            
+            if text.startswith('/add'):
+                files = text.split()[1:]
+                added = []
+                for f in files:
+                    if Path(f).exists():
+                        workspace_files.append(str(Path(f).resolve()))
+                        added.append(f)
+                workspace_files = list(set(workspace_files))  # 去重
+                config['workspace_files'] = workspace_files
+                save_config(config)
+                print(f"已添加文件到工作区：{', '.join(added)}")
+                
+            elif text.startswith('/model'):
+                new_model = text.split(maxsplit=1)[1]
+                set_model(new_model)
+                print(f"模型已设置为：{new_model}")
+                
+            elif text == '/exit':
+                break
+                
+            elif text == '/help':
+                print("可用命令：\n"
+                      "/add <文件>... 添加文件到工作区\n"
+                      "/model <模型名称> 设置LLM模型\n"
+                      "/exit 退出\n"
+                      "/help 显示帮助")
+                      
+            else:
+                # 构造包含工作区文件的上下文
+                context = []
+                for f in workspace_files:
+                    try:
+                        with open(f) as file:
+                            context.append(f"文件 {f} 内容：\n{file.read()}")
+                    except Exception as e:
+                        print(f"读取文件 {f} 出错：{str(e)}")
+                
+                response = completion(
+                    model=get_model(),
+                    messages=[
+                        {"role": "system", "content": "你是一个招聘助手，当前工作区文件：\n" + '\n'.join(context)},
+                        {"role": "user", "content": text}
+                    ]
+                )
+                print(response.choices[0].message.content)
+                
+        except (KeyboardInterrupt, EOFError):
+            break
+        except Exception as e:
+            print(f"出错：{str(e)}")
 
 
 # Resume format conversion (PDF to Markdown)
@@ -60,4 +124,4 @@ if __name__ == "__main__":
     elif args.server:
         app.run(debug=True)
     else:
-        parser.print_help()
+        chat_mode()
