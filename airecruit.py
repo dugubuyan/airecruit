@@ -46,7 +46,7 @@ def chat_mode():
         try:
             text = session.prompt('> ')
             
-            elif text.startswith('/file'):
+            if text.startswith('/file'):
                 parts = text.split(maxsplit=2)
                 if len(parts) < 2:
                     print("文件操作命令格式：/file <add|ls|drop> [参数]")
@@ -115,11 +115,14 @@ def chat_mode():
                 
             elif text == '/help':
                 print("可用命令：\n"
-                      "/add <文件路径>...   添加文件到工作区（支持pdf/docx/txt/md）\n" 
-                      "/ls                显示工作区文件\n"
-                      "/model <模型名称>   设置LLM模型（格式：provider/model:version）\n"
-                      "/exit              退出程序\n"
-                      "/help             显示帮助信息")
+                      "/file add <路径>... 添加文件到工作区\n"
+                      "/file ls          列出工作区文件\n" 
+                      "/file drop <文件> 移除工作区文件\n"
+                      "/model ls         查看支持模型列表\n"
+                      "/model <名称>     设置LLM模型\n"
+                      "/work <命令>      执行工作命令\n"
+                      "/exit             退出程序\n"
+                      "/help            显示帮助信息")
                       
             elif text.startswith('/work'):
                 parts = text.split(maxsplit=2)
