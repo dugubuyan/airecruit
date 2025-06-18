@@ -39,7 +39,11 @@ def chat_mode():
             text = session.prompt('> ')
             
             if text.startswith('/add'):
-                files = text.split()[1:]
+                parts = text.split()
+                if len(parts) < 2:
+                    print("错误：请指定要添加的文件，格式为/add <文件路径>...")
+                    continue
+                files = parts[1:]
                 added = []
                 for f in files:
                     if Path(f).exists():
@@ -51,9 +55,16 @@ def chat_mode():
                 print(f"已添加文件到工作区：{', '.join(added)}")
                 
             elif text.startswith('/model'):
-                new_model = text.split(maxsplit=1)[1]
-                set_model(new_model)
-                print(f"模型已设置为：{new_model}")
+                parts = text.split(maxsplit=1)
+                if len(parts) < 2:
+                    print("错误：请指定模型名称，格式为/command <模型名称>")
+                    continue
+                new_model = parts[1]
+                try:
+                    set_model(new_model)
+                    print(f"模型已设置为：{new_model}")
+                except ValueError as e:
+                    print(f"无效的模型格式：{str(e)}")
                 
             elif text == '/exit':
                 break

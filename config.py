@@ -25,6 +25,10 @@ def get_model():
     return config.get("model", "ollama/mistral:7b-instruct")
 
 def set_model(model):
+    # 验证模型名称格式 例如：ollama/mistral:7b-instruct
+    if '/' not in model or ':' not in model.split('/')[-1]:
+        raise ValueError("模型名称格式应为 provider/model:version")
+    
     config = load_config()
     config["model"] = model
     save_config(config)
