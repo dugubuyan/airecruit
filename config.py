@@ -12,9 +12,9 @@ def load_config():
     
     # 合并默认配置保证新增字段兼容
     default_config = {
-        'default_model': 'gpt-3.5-turbo',
+        'default_model': 'ollama/mistral:7b-instruct',
         'last_model': None,
-        'model': 'gpt-3.5-turbo',
+        'model': 'ollama/mistral:7b-instruct',
         'workspace_files': []
     }
     default_config.update(config)
@@ -22,7 +22,7 @@ def load_config():
 
 def get_model():
     config = load_config()
-    return config.get("model", "gpt-4")
+    return config.get("model", "ollama/mistral:7b-instruct")
 
 def set_model(model):
     config = load_config()
