@@ -8,7 +8,7 @@ def load_config():
         with open(CONFIG_FILE, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        return {'default_model': 'gpt-3.5-turbo', 'last_model': None, 'workspace_files': []}
+        config = {}
     
     # 合并默认配置保证新增字段兼容
     default_config = {
