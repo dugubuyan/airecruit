@@ -30,7 +30,13 @@ config = load_config()
 
 def chat_mode():
     """交互式聊天模式"""
-    session = PromptSession(history=FileHistory('.airecruit_history'))
+    from prompt_toolkit.auto_suggest import AutoSuggestFromNames
+    command_suggestions = AutoSuggestFromNames(['/add ', '/model ', '/exit', '/help'])
+    
+    session = PromptSession(
+        history=FileHistory('.airecruit_history'),
+        auto_suggest=command_suggestions
+    )
     workspace_files = config.get('workspace_files', [])
     
     print("欢迎进入AI招聘助手聊天模式（输入/help查看帮助）")
@@ -71,11 +77,16 @@ def chat_mode():
                 
             elif text == '/help':
                 print("可用命令：\n"
-                      "/add <文件>... 添加文件到工作区\n"
-                      "/model <模型名称> 设置LLM模型\n"
-                      "/exit 退出\n"
-                      "/help 显示帮助")
+                      "/add <文件路径>...   添加文件到工作区\n"
+                      "/model <模型名称>   设置LLM模型（格式：provider/model:version）\n"
+                      "/exit              退出程序\n"
+                      "/help             显示帮助信息")
                       
+            elif text.startswith('/'):
+                print(f"未知命令：{text.split()[0]}")
+                print("请输入有效命令，可用命令列表：")
+                print("/add, /model, /exit, /help")
+                
             else:
                 # 构造包含工作区文件的上下文
                 context = []
