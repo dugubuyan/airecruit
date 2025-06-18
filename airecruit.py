@@ -11,7 +11,6 @@ import shlex
 from flask import Flask, request, jsonify, render_template
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
-from pathlib import Path
 from config import load_config, save_config, set_model, get_model
 
 from commands import (
