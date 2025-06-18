@@ -30,8 +30,8 @@ config = load_config()
 
 def chat_mode():
     """交互式聊天模式"""
-    from prompt_toolkit.auto_suggest import AutoSuggestFromNames
-    command_suggestions = AutoSuggestFromNames(['/add ', '/model ', '/exit', '/help'])
+    from prompt_toolkit.auto_suggest import AutoSuggest
+    command_suggestions = AutoSuggest.from_names(['/add ', '/model ', '/exit', '/help'])
     
     session = PromptSession(
         history=FileHistory('.airecruit_history'),
