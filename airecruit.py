@@ -31,7 +31,7 @@ config = load_config()
 def chat_mode():
     """交互式聊天模式"""
     from prompt_toolkit.completion import WordCompleter
-    command_completer = WordCompleter(['/add', '/model', '/exit', '/help'], ignore_case=True)
+    command_completer = WordCompleter(['/add', '/model', '/ls', '/exit', '/help'], ignore_case=True)
     
     session = PromptSession(
         history=FileHistory('.airecruit_history'),
@@ -52,9 +52,29 @@ def chat_mode():
                 files = parts[1:]
                 added = []
                 for f in files:
-                    if Path(f).exists():
-                        workspace_files.append(str(Path(f).resolve()))
-                        added.append(f)
+                    file_path = Path(f)
+                    if not file_path.exists():
+                        print(f"文件不存在：{f}")
+                        continue
+                    
+                    # 转换并添加文件
+                    if file_path.suffix.lower() in ('.pdf', '.docx'):
+                        # 生成对应的md文件路径
+                        md_path = file_path.with_suffix('.md')
+                        try:
+                            if file_path.suffix.lower() == '.pdf':
+                                convert_pdf_to_md(str(file_path), str(md_path))
+                            else:
+                                convert_docx_to_md(str(file_path), str(md_path))
+                            workspace_files.append(str(md_path.resolve()))
+                            added.append(str(md_path))
+                        except Exception as e:
+                            print(f"转换文件 {f} 失败：{str(e)}")
+                    elif file_path.suffix.lower() in ('.txt', '.md'):
+                        workspace_files.append(str(file_path.resolve()))
+                        added.append(str(file_path))
+                    else:
+                        print(f"跳过不支持的文件类型：{file_path.suffix}")
                 workspace_files = list(set(workspace_files))  # 去重
                 config['workspace_files'] = workspace_files
                 save_config(config)
@@ -77,15 +97,25 @@ def chat_mode():
                 
             elif text == '/help':
                 print("可用命令：\n"
-                      "/add <文件路径>...   添加文件到工作区\n"
+                      "/add <文件路径>...   添加文件到工作区（支持pdf/docx/txt/md）\n" 
+                      "/ls                显示工作区文件\n"
                       "/model <模型名称>   设置LLM模型（格式：provider/model:version）\n"
                       "/exit              退出程序\n"
                       "/help             显示帮助信息")
                       
+            elif text == '/ls':
+                if not workspace_files:
+                    print("工作区暂无文件")
+                else:
+                    print("工作区文件列表：")
+                    for f in workspace_files:
+                        file_path = Path(f)
+                        print(f"- {f} (最后修改时间：{file_path.stat().st_mtime:.0f})")
+            
             elif text.startswith('/'):
                 print(f"未知命令：{text.split()[0]}")
                 print("请输入有效命令，可用命令列表：")
-                print("/add, /model, /exit, /help")
+                print("/add, /model, /ls, /exit, /help")
                 
             else:
                 # 构造包含工作区文件的上下文
@@ -124,11 +154,20 @@ def chat_mode():
             print(f"出错：{str(e)}")
 
 
-# Resume format conversion (PDF to Markdown)
+# 文件格式转换功能
 def convert_pdf_to_md(pdf_path, output_path):
+    """转换PDF文件到Markdown格式"""
     from pdfminer.high_level import extract_text
     text = extract_text(pdf_path)
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(text)
+
+def convert_docx_to_md(docx_path, output_path):
+    """转换DOCX文件到Markdown格式"""
+    from docx import Document
+    doc = Document(docx_path)
+    text = '\n'.join([para.text for para in doc.paragraphs])
+    with open(output_path, 'w', encoding='utf-8') as f:
         f.write(text)
 
 # Local web server with Flask
