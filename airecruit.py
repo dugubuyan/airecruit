@@ -30,12 +30,12 @@ config = load_config()
 
 def chat_mode():
     """交互式聊天模式"""
-    from prompt_toolkit.auto_suggest import AutoSuggest
-    command_suggestions = AutoSuggest.from_names(['/add ', '/model ', '/exit', '/help'])
+    from prompt_toolkit.completion import WordCompleter
+    command_completer = WordCompleter(['/add', '/model', '/exit', '/help'], ignore_case=True)
     
     session = PromptSession(
         history=FileHistory('.airecruit_history'),
-        auto_suggest=command_suggestions
+        completer=command_completer
     )
     workspace_files = config.get('workspace_files', [])
     
