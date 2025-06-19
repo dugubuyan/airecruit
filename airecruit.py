@@ -85,7 +85,7 @@ def chat_mode():
                                 print(f"{i}. {f.name}")
                                 
                             file_nums = session.prompt("请输入要添加的文件编号（多个用空格分隔）: ")
-                            if not file_paths.strip():
+                            if not file_nums.strip():
                                 print("操作已取消")
                                 continue
                                 
