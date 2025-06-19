@@ -58,7 +58,7 @@ def chat_mode():
             if workspace_files:
                 print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
             print(f"{RED}{'-'*50}{RESET}")
-            text = session.prompt(f'{RED}>{RESET} ')
+            text = session.prompt('> ')
             
             if text == '/file':
                 # 进入文件管理子菜单
@@ -75,7 +75,7 @@ def chat_mode():
                         if workspace_files:
                             print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
                         print(f"{RED}{'-'*50}{RESET}")
-                        choice = session.prompt(f'{RED}file>{RESET} ')
+                        choice = session.prompt('file> ')
                         
                         if choice.startswith('/'):
                             text = choice  # 将命令传递回主循环
@@ -233,7 +233,7 @@ def chat_mode():
                         if workspace_files:
                             print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
                         print(f"{RED}{'-'*50}{RESET}")
-                        cmd_input = session.prompt(f'{RED}work>{RESET} ').strip()
+                        cmd_input = session.prompt('work> ').strip()
                         if cmd_input.startswith('/'):
                             text = cmd_input  # 将命令传递回主循环
                             break
