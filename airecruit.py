@@ -58,6 +58,9 @@ def chat_mode():
                     try:
                         choice = session.prompt('file> ')
                         
+                        if choice.startswith('/'):
+                            text = choice  # 将命令传递回主循环
+                            break
                         if choice == '0':
                             break
                             
@@ -207,6 +210,9 @@ def chat_mode():
                 while True:
                     try:
                         cmd_input = session.prompt('work> ').strip()
+                        if cmd_input.startswith('/'):
+                            text = cmd_input  # 将命令传递回主循环
+                            break
                         if cmd_input == '0':
                             break
                             
