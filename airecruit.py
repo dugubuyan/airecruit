@@ -66,10 +66,10 @@ def chat_mode():
                     try:
                         # 文件子菜单提示符
                         print("\033[31m" + "-" * 50 + "\033[0m")
-            if workspace_files:
-                print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
-            print("\033[31m" + "-" * 50 + "\033[0m")
-            choice = session.prompt('\033[31mfile>\033[0m ')
+                        if workspace_files:
+                            print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
+                        print("\033[31m" + "-" * 50 + "\033[0m")
+                        choice = session.prompt('\033[31mfile>\033[0m ')
                         
                         if choice.startswith('/'):
                             text = choice  # 将命令传递回主循环
@@ -224,10 +224,10 @@ def chat_mode():
                     try:
                         # 工作命令子菜单提示符
                         print("\033[31m" + "-" * 50 + "\033[0m")
-            if workspace_files:
-                print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
-            print("\033[31m" + "-" * 50 + "\033[0m")
-            cmd_input = session.prompt('\033[31mwork>\033[0m ').strip()
+                        if workspace_files:
+                            print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
+                        print("\033[31m" + "-" * 50 + "\033[0m")
+                        cmd_input = session.prompt('\033[31mwork>\033[0m ').strip()
                         if cmd_input.startswith('/'):
                             text = cmd_input  # 将命令传递回主循环
                             break
