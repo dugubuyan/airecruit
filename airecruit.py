@@ -160,7 +160,7 @@ def chat_mode():
                       "/file             文件管理菜单\n"
                       "/model ls         查看支持模型列表\n"
                       "/model <名称>     设置LLM模型\n"
-                      "/work <命令>      执行工作命令\n"
+                      "/work <命令>      执行工作命令（可用命令：optimize, summarize, cover-letter, filters, recommend, contact）\n"
                       "/exit             退出程序\n"
                       "/help            显示帮助信息")
                       
@@ -175,14 +175,32 @@ def chat_mode():
                 args = parts[2] if len(parts) > 2 else ""
                 
                 try:
+                    params = args.split(';')
                     if command == 'optimize':
-                        # 示例参数解析逻辑
-                        params = args.split(';')
                         if len(params) < 2:
                             raise ValueError("需要JD和简历参数，格式：optimize <JD> ; <resume>")
                         result = optimize_resume(params[0], params[1])
                         print("优化结果：\n" + result)
-                    # 其他命令处理逻辑...
+                    elif command == 'summarize':
+                        if len(params) < 1:
+                            raise ValueError("需要简历参数，格式：summarize <resume>")
+                        print("简历摘要：\n" + summarize_resume(params[0]))
+                    elif command == 'cover-letter':
+                        if len(params) < 2:
+                            raise ValueError("需要JD和简历参数，格式：cover-letter <JD> ; <resume>")
+                        print("生成求职信：\n" + generate_cover_letter(params[0], params[1]))
+                    elif command == 'filters':
+                        if len(params) < 1:
+                            raise ValueError("需要简历参数，格式：filters <resume>")
+                        print("生成SQL筛选条件：\n" + resume_to_sql_filters(params[0]))
+                    elif command == 'recommend':
+                        if len(params) < 2:
+                            raise ValueError("需要JD和简历参数，格式：recommend <JD> ; <resume>")
+                        print("职位推荐建议：\n" + generate_recommendation(params[0], params[1]))
+                    elif command == 'contact':
+                        if len(params) < 1:
+                            raise ValueError("需要JD参数，格式：contact <JD>")
+                        print("提取联系信息：\n" + extract_contact_and_send(params[0]))
                     else:
                         print(f"未知工作命令：{command}")
                 except Exception as e:
