@@ -50,15 +50,17 @@ def chat_mode():
     )
     workspace_files = config.get('workspace_files', [])
     
-    print(f"{RED}{'-'*50}{RESET}")
     print("欢迎进入AI招聘助手聊天模式（输入/help查看帮助）")
+    print(f"{RED}{'-'*50}{RESET}")
     while True:
         try:
             # 显示工作区文件和红色分隔线
             if workspace_files:
                 print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
-            print(f"{RED}{'-'*50}{RESET}")
             text = session.prompt('> ')
+            if not text.strip():
+                print("请问您需要我做什么？")
+                continue
             
             if text == '/file':
                 # 进入文件管理子菜单
@@ -73,8 +75,7 @@ def chat_mode():
                         # 文件子菜单提示符
                         print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
-                            print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
-                        print(f"{RED}{'-'*50}{RESET}")
+                            print(f"{RED}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
                         choice = session.prompt('file> ')
                         
                         if choice.startswith('/'):
