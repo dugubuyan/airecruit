@@ -232,7 +232,7 @@ def chat_mode():
                         # 工作命令子菜单提示符
                         print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
-                            print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+                            print(f"{RED}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
                         print(f"{RED}{'-'*50}{RESET}")
                         cmd_input = session.prompt('work> ').strip()
                         if cmd_input.startswith('/'):
