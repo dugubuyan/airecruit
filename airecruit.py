@@ -64,8 +64,8 @@ def chat_mode():
                 
                 while True:
                     try:
-            # 文件子菜单提示符
-            print("\033[31m" + "-" * 50 + "\033[0m")
+                        # 文件子菜单提示符
+                        print("\033[31m" + "-" * 50 + "\033[0m")
             if workspace_files:
                 print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
             print("\033[31m" + "-" * 50 + "\033[0m")
@@ -222,8 +222,8 @@ def chat_mode():
                 
                 while True:
                     try:
-            # 工作命令子菜单提示符
-            print("\033[31m" + "-" * 50 + "\033[0m")
+                        # 工作命令子菜单提示符
+                        print("\033[31m" + "-" * 50 + "\033[0m")
             if workspace_files:
                 print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
             print("\033[31m" + "-" * 50 + "\033[0m")
