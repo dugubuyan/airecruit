@@ -31,6 +31,7 @@ config = load_config()
 def chat_mode():
     """交互式聊天模式"""
     from prompt_toolkit.completion import WordCompleter
+    from prompt_toolkit.styles import style_from_dict
     command_completer = WordCompleter([
         '/file', '/model', '/work', '/exit', '/help'
     ], ignore_case=True)
