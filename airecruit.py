@@ -160,51 +160,93 @@ def chat_mode():
                       "/file             文件管理菜单\n"
                       "/model ls         查看支持模型列表\n"
                       "/model <名称>     设置LLM模型\n"
-                      "/work <命令>      执行工作命令（可用命令：optimize, summarize, cover-letter, filters, recommend, contact）\n"
+                      "/work            进入工作命令菜单\n"
                       "/exit             退出程序\n"
                       "/help            显示帮助信息")
                       
-            elif text.startswith('/work'):
-                parts = text.split(maxsplit=2)
-                if len(parts) < 2:
-                    print("工作命令格式：/work <command> [参数]")
-                    print("可用命令：" + ", ".join(WORK_COMMANDS))
-                    continue
+            elif text == '/work':
+                # 进入工作命令子菜单
+                print("\n请选择要执行的功能（输入编号或自然语言描述）：")
+                commands = [
+                    ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
+                    ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
+                    ("3. 生成求职信", "cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
+                    ("4. 生成筛选条件", "filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
+                    ("5. 职位推荐", "recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
+                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send)
+                ]
                 
-                command = parts[1].lower()
-                args = parts[2] if len(parts) > 2 else ""
+                # 显示带编号的菜单
+                for desc, _, params, _ in commands:
+                    print(f"{desc} ({params})")
+                print("0. 返回主菜单")
                 
-                try:
-                    params = args.split(';')
-                    if command == 'optimize':
-                        if len(params) < 2:
-                            raise ValueError("需要JD和简历参数，格式：optimize <JD> ; <resume>")
-                        result = optimize_resume(params[0], params[1])
-                        print("优化结果：\n" + result)
-                    elif command == 'summarize':
-                        if len(params) < 1:
-                            raise ValueError("需要简历参数，格式：summarize <resume>")
-                        print("简历摘要：\n" + summarize_resume(params[0]))
-                    elif command == 'cover-letter':
-                        if len(params) < 2:
-                            raise ValueError("需要JD和简历参数，格式：cover-letter <JD> ; <resume>")
-                        print("生成求职信：\n" + generate_cover_letter(params[0], params[1]))
-                    elif command == 'filters':
-                        if len(params) < 1:
-                            raise ValueError("需要简历参数，格式：filters <resume>")
-                        print("生成SQL筛选条件：\n" + resume_to_sql_filters(params[0]))
-                    elif command == 'recommend':
-                        if len(params) < 2:
-                            raise ValueError("需要JD和简历参数，格式：recommend <JD> ; <resume>")
-                        print("职位推荐建议：\n" + generate_recommendation(params[0], params[1]))
-                    elif command == 'contact':
-                        if len(params) < 1:
-                            raise ValueError("需要JD参数，格式：contact <JD>")
-                        print("提取联系信息：\n" + extract_contact_and_send(params[0]))
-                    else:
-                        print(f"未知工作命令：{command}")
-                except Exception as e:
-                    print(f"执行命令出错：{str(e)}")
+                while True:
+                    try:
+                        cmd_input = session.prompt('work> ').strip()
+                        if cmd_input == '0':
+                            break
+                            
+                        # 处理数字选择
+                        if cmd_input.isdigit():
+                            index = int(cmd_input) - 1
+                            if 0 <= index < len(commands):
+                                _, cmd_name, params_needed, cmd_func = commands[index]
+                                print(f"\n执行 {cmd_name} 命令（{params_needed}）")
+                                
+                                # 收集所需参数
+                                params = []
+                                for param in params_needed.split("和"):
+                                    param = param.replace("需要", "").strip()
+                                    param_input = session.prompt(f"请输入 {param}: ")
+                                    params.append(param_input.strip())
+                                
+                                # 执行命令并显示结果
+                                result = cmd_func(*params)
+                                print(f"\n执行结果：\n{result}\n")
+                            else:
+                                print("错误：请输入有效的编号")
+                            continue
+                            
+                        # 处理自然语言输入
+                        system_msg = (
+                            "你是一个招聘助手，可以执行以下功能：\n" +
+                            "\n".join([f"{i+1}. {desc[3:]}（需要参数：{params}）" 
+                                    for i, (desc, _, params, _) in enumerate(commands)]) +
+                            "\n请根据用户需求引导完成参数输入"
+                        )
+                        
+                        # 保持对话上下文
+                        messages = [{"role": "system", "content": system_msg}]
+                        while True:
+                            messages.append({"role": "user", "content": cmd_input})
+                            response = completion(
+                                model=get_model(),
+                                messages=messages
+                            )
+                            ai_reply = response.choices[0].message.content
+                            print(f"助理：{ai_reply}")
+                            
+                            # 检查是否完成参数收集
+                            if "参数已齐全" in ai_reply:
+                                # 提取参数并执行命令
+                                cmd_index = int(ai_reply.split("执行命令")[1].split(":")[0].strip()) - 1
+                                params = eval(ai_reply.split("参数：")[1].split("\n")[0].strip())
+                                result = commands[cmd_index][3](*params)
+                                print(f"\n执行结果：\n{result}\n")
+                                break
+                                
+                            # 继续收集参数
+                            next_input = session.prompt('> ').strip()
+                            if next_input.lower() == '取消':
+                                print("命令已取消")
+                                break
+                            cmd_input = next_input
+                            
+                    except (KeyboardInterrupt, EOFError):
+                        break
+                    except Exception as e:
+                        print(f"执行出错：{str(e)}")
             
             elif text.startswith('/file'):
                 # 已处理的file命令分支
