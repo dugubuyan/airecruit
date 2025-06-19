@@ -36,6 +36,11 @@ def chat_mode():
         '/file', '/model', '/work', '/exit', '/help'
     ], ignore_case=True)
     
+    # 定义颜色常量
+    RED = '\033[31m'
+    BLUE = '\033[34m'
+    RESET = '\033[0m'
+    
     session = PromptSession(
         history=FileHistory('.airecruit_history'),
         completer=command_completer,
@@ -45,15 +50,15 @@ def chat_mode():
     )
     workspace_files = config.get('workspace_files', [])
     
-    print("\033[31m" + "-" * 50 + "\033[0m")
+    print(f"{RED}{'-'*50}{RESET}")
     print("欢迎进入AI招聘助手聊天模式（输入/help查看帮助）")
     while True:
         try:
             # 显示工作区文件和红色分隔线
             if workspace_files:
-                print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
-            print("\033[31m" + "-" * 50 + "\033[0m")
-            text = session.prompt('\033[31m>\033[0m ')
+                print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+            print(f"{RED}{'-'*50}{RESET}")
+            text = session.prompt(f'{RED}>{RESET} ')
             
             if text == '/file':
                 # 进入文件管理子菜单
@@ -66,11 +71,11 @@ def chat_mode():
                 while True:
                     try:
                         # 文件子菜单提示符
-                        print("\033[31m" + "-" * 50 + "\033[0m")
+                        print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
-                            print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
-                        print("\033[31m" + "-" * 50 + "\033[0m")
-                        choice = session.prompt('\033[31mfile>\033[0m ')
+                            print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+                        print(f"{RED}{'-'*50}{RESET}")
+                        choice = session.prompt(f'{RED}file>{RESET} ')
                         
                         if choice.startswith('/'):
                             text = choice  # 将命令传递回主循环
@@ -224,11 +229,11 @@ def chat_mode():
                 while True:
                     try:
                         # 工作命令子菜单提示符
-                        print("\033[31m" + "-" * 50 + "\033[0m")
+                        print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
-                            print("\033[34m工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + "\033[0m")
-                        print("\033[31m" + "-" * 50 + "\033[0m")
-                        cmd_input = session.prompt('\033[31mwork>\033[0m ').strip()
+                            print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+                        print(f"{RED}{'-'*50}{RESET}")
+                        cmd_input = session.prompt(f'{RED}work>{RESET} ').strip()
                         if cmd_input.startswith('/'):
                             text = cmd_input  # 将命令传递回主循环
                             break
