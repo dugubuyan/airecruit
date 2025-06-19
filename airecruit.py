@@ -31,7 +31,7 @@ config = load_config()
 def chat_mode():
     """交互式聊天模式"""
     from prompt_toolkit.completion import WordCompleter
-    from prompt_toolkit.styles import style_from_dict
+    from prompt_toolkit.styles import Style
     command_completer = WordCompleter([
         '/file', '/model', '/work', '/exit', '/help'
     ], ignore_case=True)
@@ -44,8 +44,8 @@ def chat_mode():
     session = PromptSession(
         history=FileHistory('.airecruit_history'),
         completer=command_completer,
-        style=style_from_dict({
-            'prompt': 'ansired bold',
+        style=Style.from_dict({
+            'prompt': '#ff0000 bold',
         })
     )
     workspace_files = config.get('workspace_files', [])
