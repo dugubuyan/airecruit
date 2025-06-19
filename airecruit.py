@@ -56,7 +56,7 @@ def chat_mode():
         try:
             # 显示工作区文件和红色分隔线
             if workspace_files:
-                print(f"{BLUE}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+                print(f"{RED}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
             text = session.prompt('> ')
             if not text.strip():
                 print("请问您需要我做什么？")
