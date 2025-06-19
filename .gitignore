@@ -1,2 +1,4 @@
 .aider*
 .config.json
+workdir/
+.airecruit_history

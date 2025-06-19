@@ -68,14 +68,37 @@ def chat_mode():
                         print()
                         
                         if choice == '1':
-                            file_paths = session.prompt("请输入要添加的文件路径（多个文件用空格分隔）: ")
+                            # 扫描workdir目录中的文件
+                            work_dir = Path("workdir")
+                            work_dir.mkdir(exist_ok=True)  # 确保目录存在
+                            
+                            # 获取目录中支持的文件类型
+                            file_list = list(work_dir.glob("*.pdf")) + list(work_dir.glob("*.docx")) + \
+                                      list(work_dir.glob("*.md")) + list(work_dir.glob("*.txt"))
+                                      
+                            if not file_list:
+                                print("workdir目录中没有可用的文件（支持pdf/docx/md/txt格式）")
+                                continue
+                                
+                            print("\nworkdir目录中的可用文件：")
+                            for i, f in enumerate(file_list, 1):
+                                print(f"{i}. {f.name}")
+                                
+                            file_nums = session.prompt("请输入要添加的文件编号（多个用空格分隔）: ")
                             if not file_paths.strip():
                                 print("操作已取消")
                                 continue
                                 
                             added = []
-                            for f in file_paths.split():
-                                file_path = Path(f)
+                            try:
+                                indexes = [int(n)-1 for n in file_nums.split()]
+                                selected_files = [file_list[i] for i in indexes]
+                            except (ValueError, IndexError):
+                                print("错误：请输入有效的文件编号")
+                                continue
+                                
+                            added = []
+                            for file_path in selected_files:
                                 if not file_path.exists():
                                     print(f"文件不存在：{f}")
                                     continue
