@@ -101,9 +101,6 @@
     
     <script>
         function optimizeResume() {
-            const jd = $('#jd').val();
-            const resume = $('#resume').val();
-            
             fetch('/api/optimize', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

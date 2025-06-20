@@ -10,6 +10,7 @@ from litellm import completion
 from diff_match_patch import diff_match_patch
 import shlex
 from flask import Flask, request, jsonify, render_template
+from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from config import load_config, save_config, set_model, get_model
@@ -448,12 +449,44 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
+@app.route("/api/add_file", methods=["POST"])
+def api_add_file():
+    from utils.workspace import WorkspaceManager
+    ws = WorkspaceManager()
+    file_path = request.json.get("path")
+    if not file_path:
+        return jsonify({"error": "Missing file path"}), 400
+    ws.add_file(file_path, "auto", "")
+    return jsonify({"status": "added", "path": file_path})
+
+@app.route("/api/files", methods=["GET"])
+def api_files():
+    from utils.workspace import WorkspaceManager
+    ws = WorkspaceManager()
+    return jsonify(ws.list_files())
+
 @app.route("/api/optimize", methods=["POST"])
 def api_optimize():
-    jd = request.json["jd"]
-    resume = request.json["resume"]
-    result = optimize_resume(jd, resume)
-    return jsonify({"optimized": result})
+    from utils.workspace import WorkspaceManager
+    ws = WorkspaceManager()
+    
+    try:
+        # 从工作区获取最新简历和JD
+        resumes = ws.get_resumes()
+        jds = ws.get_jds()
+        
+        if not resumes or not jds:
+            return jsonify({"error": "需要至少一份简历和职位描述"}), 400
+            
+        # 使用第一个找到的简历和JD
+        resume_content = resumes[0].get("content", "")
+        jd_content = jds[0].get("content", "")
+        
+        result = optimize_resume(jd_content, resume_content)
+        return jsonify({"optimized": result})
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # CLI
 if __name__ == "__main__":
