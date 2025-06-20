@@ -161,8 +161,8 @@ def chat_mode():
                                         content=content
                                     )
                                     added.append(file_path.name)
-                                    # 刷新工作区文件列表
-                                    workspace_files = [f['path'] for f in ws.config['workspace_files']]
+                                    # 刷新工作区文件列表（带类型标记）
+                                    workspace_files = ws.list_files()
                                 else:
                                     print(f"跳过不支持的文件类型：{file_path.suffix}")
                             
