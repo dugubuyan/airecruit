@@ -3,6 +3,7 @@
 import os
 import argparse
 import json
+import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 from litellm import completion
