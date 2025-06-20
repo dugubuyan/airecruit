@@ -204,7 +204,8 @@ def chat_mode():
                 
                 if parts[1].lower() == 'ls':
                     print("支持的模型列表：")
-                    for model in config.get('supported_models', []):
+                    current_config = load_config()
+                    for model in current_config.get('supported_models', []):
                         print(f"- {model}")
                     continue
                 
