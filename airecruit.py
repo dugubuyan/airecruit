@@ -152,6 +152,7 @@ def chat_mode():
                                     file_type = 'resume' if file_type == '1' else 'jd'
                                     
                                     # 添加到工作区
+                                    from utils.workspace import WorkspaceManager
                                     ws = WorkspaceManager()
                                     ws.add_file(
                                         path=str(file_path.resolve()),
@@ -231,6 +232,14 @@ def chat_mode():
             elif text == '/work':
                 from utils.workspace import WorkspaceManager
                 ws = WorkspaceManager()
+                commands = [
+                    ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
+                    ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
+                    ("3. 生成求职信", "cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
+                    ("4. 生成筛选条件", "filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
+                    ("5. 职位推荐", "recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
+                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send)
+                ]
                 
                 # 构造动态系统提示
                 system_msg = f'''您正在使用AI招聘助手，当前工作区包含：
