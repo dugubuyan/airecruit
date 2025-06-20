@@ -24,10 +24,9 @@ def load_config():
             'gemini/gemini-2.0-flash'  # 修正模型名称格式
         ]
     }
-    # 初始化config保证包含supported_models字段
-    config = default_config.copy()
-    default_config.update(config)
-    return default_config
+    # 合并默认配置到现有配置
+    config.update(default_config)
+    return config
 
 def get_model():
     config = load_config()

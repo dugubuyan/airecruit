@@ -210,7 +210,7 @@ def chat_mode():
                 
                 new_model = parts[1]
                 try:
-                    if new_model not in config.get('supported_models', []):
+                    if new_model not in load_config().get('supported_models', []):
                         raise ValueError(f"不支持该模型，请使用/model ls查看支持列表")
                     set_model(new_model)
                     print(f"模型已设置为：{new_model}")
