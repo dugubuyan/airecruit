@@ -18,7 +18,14 @@ def optimize_resume():
     if not resumes:
         return "错误：工作区中没有简历文件，请先使用/file命令添加并分类简历文件"
     
-    # 使用最新添加的JD和简历
+    # 使用最新添加的JD和简历并显示提示
+    from utils.workspace import WorkspaceManager
+    ws = WorkspaceManager()
+    file_list = ws.list_files()
+    print(f"\n🔍 工作区检测到：")
+    print("- 最新JD文件：", [f for f in file_list if 'JD' in f][-1])
+    print("- 最新简历文件：", [f for f in file_list if 'RESUME' in f][-1])
+    
     jd = jds[-1]
     resume = resumes[-1]
     

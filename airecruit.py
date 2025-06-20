@@ -64,11 +64,12 @@ def chat_mode():
             
             if text == '/file':
                 # 进入文件管理子菜单
-                print("\n文件管理操作：")
-                print("1. 添加文件到工作区")
-                print("2. 列出工作区文件")
-                print("3. 移除工作区文件")
-                print("0. 返回主菜单")
+                print(f"\n{RED}文件管理操作（当前工作区文件：{len(workspace_files)}个）{RESET}")
+                print("1. 扫描并添加文件 - 从workdir目录添加文件到工作区")
+                print("2. 列出工作区文件 - 显示已添加的文件及其类型")
+                print("3. 移除工作区文件 - 从工作区删除指定文件")
+                print(f"{RED}0. 返回主菜单{RESET}")
+                print(f"{RED}提示：支持的文件类型：PDF/DOCX/MD/TXT{RESET}")
                 
                 while True:
                     try:
@@ -160,6 +161,8 @@ def chat_mode():
                                         content=content
                                     )
                                     added.append(file_path.name)
+                                    # 刷新工作区文件列表
+                                    workspace_files = [f['path'] for f in ws.config['workspace_files']]
                                 else:
                                     print(f"跳过不支持的文件类型：{file_path.suffix}")
                             
@@ -223,12 +226,15 @@ def chat_mode():
                 
             elif text == '/help':
                 print("可用命令：\n"
-                      "/file             文件管理菜单\n"
-                      "/model ls         查看支持模型列表\n"
-                      "/model <名称>     设置LLM模型\n"
-                      "/work            进入工作命令菜单\n"
-                      "/exit             退出程序\n"
-                      "/help            显示帮助信息")
+                      f"{RED}可用命令列表：{RESET}\n"
+                      "/file       - 文件管理（添加/查看/删除工作区文件）\n"
+                      "/model ls   - 查看所有支持的AI模型列表\n" 
+                      "/model <名称> - 切换AI模型（需要先查看支持列表）\n"
+                      "/work      - 进入智能工作模式（简历优化/生成求职信等）\n"
+                      f"{RED}系统状态：{RESET}\n"
+                      f"当前模型：{get_model()}\n"
+                      f"工作区文件：{len(workspace_files)}个\n"
+                      f"{RED}输入 /exit 退出程序{RESET}")
                       
             elif text == '/work':
                 from utils.workspace import WorkspaceManager
@@ -243,8 +249,12 @@ def chat_mode():
                 ]
                 
                 # 构造动态系统提示
-                system_msg = f'''您正在使用AI招聘助手，当前工作区包含：
-{len(ws.get_resumes())}份简历和{len(ws.get_jds())}份职位描述（JD）
+                # 获取最新工作区状态
+                resumes = ws.get_resumes()
+                jds = ws.get_jds()
+                system_msg = f'''您正在使用AI招聘助手，当前工作区状态：
+📁 简历文件：{len(resumes)}份 ({'✅' if len(resumes)>=1 else '❌'})
+📄 JD文件：{len(jds)}份 ({'✅' if len(jds)>=1 else '❌'})
 
 请按以下步骤操作：
 1. 分析用户需求
