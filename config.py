@@ -21,9 +21,11 @@ def load_config():
             'openai/gpt-4',
             'anthropic/claude-2',
             'cohere/command-nightly',
-            'gemini/gemini-2.0-flash'
+            'gemini/gemini-2.0-flash'  # 修正模型名称格式
         ]
     }
+    # 初始化config保证包含supported_models字段
+    config = default_config.copy()
     default_config.update(config)
     return default_config
 
@@ -32,9 +34,9 @@ def get_model():
     return config.get("model", "ollama/mistral:7b-instruct")
 
 def set_model(model):
-    # 验证模型名称格式 例如：ollama/mistral:7b-instruct
-    if '/' not in model or ':' not in model.split('/')[-1]:
-        raise ValueError("模型名称格式应为 provider/model:version")
+    # 放宽模型名称格式验证，允许无版本号
+    if '/' not in model:
+        raise ValueError("模型名称格式应为 provider/model[:version]")
     
     config = load_config()
     config["model"] = model
