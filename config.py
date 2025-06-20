@@ -20,7 +20,8 @@ def load_config():
             'ollama/mistral:7b-instruct',
             'openai/gpt-4',
             'anthropic/claude-2',
-            'cohere/command-nightly'
+            'cohere/command-nightly',
+            'gemini/gemini-2.0-flash'
         ]
     }
     default_config.update(config)
