@@ -483,8 +483,13 @@ def api_optimize():
             return jsonify({"error": "需要至少一份简历和职位描述"}), 400
             
         # 使用第一个找到的简历和JD
-        resume_content = resumes[0].get("content", "")
-        jd_content = jds[0].get("content", "")
+        resume_path = resumes[0]
+        jd_path = jds[0]
+
+        with open(resume_path, 'r', encoding='utf-8') as f:
+            resume_content = f.read()
+        with open(jd_path, 'r', encoding='utf-8') as f:
+            jd_content = f.read()
         
         result = optimize_resume(jd_content, resume_content)
         return jsonify({"optimized": result})
