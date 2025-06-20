@@ -50,8 +50,13 @@ def chat_mode():
     )
     workspace_files = config.get('workspace_files', [])
     
-    print("欢迎进入AI招聘助手聊天模式（输入/help查看帮助）")
-    print(f"{RED}{'-'*50}{RESET}")
+    print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
+    current_config = load_config()
+    print(f"{RED}{'-'*50}")
+    print(f"当前模型: {get_model()}")
+    print(f"工作邮箱: {current_config.get('email', '未设置')}")
+    print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
+    print(f"{'-'*50}{RESET}")
     while True:
         try:
             # 显示工作区文件和红色分隔线
@@ -452,7 +457,8 @@ def api_optimize():
 # CLI
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AI Recruit Assistant")
-    parser.add_argument("--server", action="store_true", help="Start local web server")
+    parser.add_argument("--browser", action="store_true", help="Start web server and open browser")
+    parser.add_argument("--verbose", action="store_true", help="Show LLM request details")
     parser.add_argument("-m", "--model", type=str, help="Set LLM model")
     args = parser.parse_args()
 
