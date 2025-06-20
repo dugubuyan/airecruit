@@ -244,6 +244,10 @@ def chat_mode():
                       f"{RED}输入 /exit 退出程序{RESET}")
                       
             elif text == '/work':
+                print(f"{RED}{'-'*50}")
+                print(f"当前模型: {get_model()}")
+                print(f"工作邮箱: {current_config.get('email', '未设置')}")
+                print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
                 from utils.workspace import WorkspaceManager
                 ws = WorkspaceManager()
                 commands = [
