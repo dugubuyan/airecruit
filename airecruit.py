@@ -283,9 +283,16 @@ def chat_mode():
                 while True:
                     try:
                         # 工作命令子菜单提示符
+                        # 获取最新工作区文件
+                        from utils.workspace import WorkspaceManager
+                        ws = WorkspaceManager()
+                        workspace_files = ws.list_files()
+                        
                         print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
-                            print(f"{RED}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+                            print(f"{RED}当前工作区文件：")
+                            for f in workspace_files:
+                                print(f"  {f}")
                         print(f"{RED}{'-'*50}{RESET}")
                         cmd_input = session.prompt('work> ').strip()
                         if cmd_input.startswith('/'):
