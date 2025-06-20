@@ -3,7 +3,8 @@ from litellm import completion
 from diff_match_patch import diff_match_patch
 from utils.workspace import WorkspaceManager
 
-def optimize_resume(workspace):
+def optimize_resume():
+    """根据工作区内容自动优化简历"""
     """简历优化命令，从工作区自动获取所需内容"""
     ws = WorkspaceManager()
     

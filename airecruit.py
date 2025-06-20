@@ -139,8 +139,26 @@ def chat_mode():
                                     except Exception as e:
                                         print(f"转换文件 {f} 失败：{str(e)}")
                                 elif file_path.suffix.lower() in ('.txt', '.md'):
-                                    workspace_files.append(str(file_path.resolve()))
-                                    added.append(str(file_path))
+                                    # 读取文件内容
+                                    with open(file_path, 'r', encoding='utf-8') as f:
+                                        content = f.read()
+                                    
+                                    # 让用户分类文件类型
+                                    file_type = session.prompt(
+                                        f"请为文件 {file_path.name} 选择类型：\n"
+                                        "1. 简历\n2. 职位描述(JD)\n请输入编号: "
+                                    ).strip()
+                                    
+                                    file_type = 'resume' if file_type == '1' else 'jd'
+                                    
+                                    # 添加到工作区
+                                    ws = WorkspaceManager()
+                                    ws.add_file(
+                                        path=str(file_path.resolve()),
+                                        file_type=file_type,
+                                        content=content
+                                    )
+                                    added.append(file_path.name)
                                 else:
                                     print(f"跳过不支持的文件类型：{file_path.suffix}")
                             
@@ -211,21 +229,29 @@ def chat_mode():
                       "/help            显示帮助信息")
                       
             elif text == '/work':
-                # 进入工作命令子菜单
-                print("\n请选择要执行的功能（输入编号或自然语言描述）：")
-                commands = [
-                    ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
-                    ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
-                    ("3. 生成求职信", "cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
-                    ("4. 生成筛选条件", "filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
-                    ("5. 职位推荐", "recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
-                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send)
-                ]
+                from utils.workspace import WorkspaceManager
+                ws = WorkspaceManager()
                 
-                # 显示带编号的菜单
-                for desc, _, params, _ in commands:
-                    print(f"{desc} ({params})")
-                print("0. 返回主菜单")
+                # 构造动态系统提示
+                system_msg = f'''您正在使用AI招聘助手，当前工作区包含：
+{len(ws.get_resumes())}份简历和{len(ws.get_jds())}份职位描述（JD）
+
+请按以下步骤操作：
+1. 告诉我您想完成的任务（例如："优化简历"）
+2. 我会检查所需文件是否齐全
+3. 如果文件不足，将引导您添加并分类文件
+4. 确认后自动执行相应操作
+
+支持的功能：
+- 简历优化（需要1JD+1简历）
+- 简历摘要（需要1简历）
+- 生成求职信（需要1JD+1简历）
+- 生成筛选条件（需要1简历） 
+- 职位推荐（需要1JD+1简历）
+- 提取联系信息（需要1JD）
+
+当前工作区文件：
+{chr(10).join(ws.list_files()) or "暂无文件"}'''
                 
                 while True:
                     try:

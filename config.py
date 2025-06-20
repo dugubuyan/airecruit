@@ -15,7 +15,7 @@ def load_config():
         'default_model': 'ollama/mistral:7b-instruct',
         'last_model': None,
         'model': 'ollama/mistral:7b-instruct',
-        'workspace_files': [],
+        'workspace_files': [],  # 每个文件项格式：{path: str, type: 'resume'|'jd', content: str}
         'supported_models': [
             'ollama/mistral:7b-instruct',
             'openai/gpt-4',
