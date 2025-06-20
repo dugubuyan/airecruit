@@ -42,6 +42,8 @@ def set_model(model):
         raise ValueError("模型名称格式应为 provider/model[:version]")
     
     config = load_config()
+    if model not in config.get('supported_models', []):
+        raise ValueError(f"不支持该模型，请使用/model ls查看支持列表")
     config["model"] = model
     save_config(config)
 
