@@ -466,7 +466,9 @@ if __name__ == "__main__":
     if args.model:
         set_model(args.model)
         print(f"模型已设置为：{args.model}")
-    elif args.server:
+    elif args.browser:
+        import webbrowser
         app.run(debug=True)
+        webbrowser.open('http://localhost:5000')
     else:
         chat_mode()
