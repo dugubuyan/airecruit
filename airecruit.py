@@ -247,18 +247,25 @@ def chat_mode():
 {len(ws.get_resumes())}份简历和{len(ws.get_jds())}份职位描述（JD）
 
 请按以下步骤操作：
-1. 告诉我您想完成的任务（例如："优化简历"）
-2. 我会检查所需文件是否齐全
-3. 如果文件不足，将引导您添加并分类文件
-4. 确认后自动执行相应操作
+1. 分析用户需求
+2. 检查所需文件是否齐全
+3. 如果文件不足，引导用户添加
+4. 使用Markdown代码块格式返回要执行的命令
 
-支持的功能：
-- 简历优化（需要1JD+1简历）
-- 简历摘要（需要1简历）
-- 生成求职信（需要1JD+1简历）
-- 生成筛选条件（需要1简历） 
-- 职位推荐（需要1JD+1简历）
-- 提取联系信息（需要1JD）
+可用命令列表（参数自动从工作区获取）：
+```command
+1. optimize_resume - 简历优化（需要1JD+1简历）
+2. summarize_resume - 简历摘要（需要1简历） 
+3. generate_cover_letter - 生成求职信（需要1JD+1简历）
+4. resume_to_sql_filters - 生成筛选条件（需要1简历）
+5. generate_recommendation - 职位推荐（需要1JD+1简历）
+6. extract_contact_and_send - 提取联系信息（需要1JD）
+```
+
+请严格使用以下格式响应：
+```command
+[命令名称] [参数1=值1 参数2=值2 ...]
+```
 
 当前工作区文件：
 {chr(10).join(ws.list_files()) or "暂无文件"}'''
@@ -317,13 +324,25 @@ def chat_mode():
                             ai_reply = response.choices[0].message.content
                             print(f"助理：{ai_reply}")
                             
-                            # 检查是否完成参数收集
-                            if "参数已齐全" in ai_reply:
-                                # 提取参数并执行命令
-                                cmd_index = int(ai_reply.split("执行命令")[1].split(":")[0].strip()) - 1
-                                params = eval(ai_reply.split("参数：")[1].split("\n")[0].strip())
-                                result = commands[cmd_index][3](*params)
-                                print(f"\n执行结果：\n{result}\n")
+                            # 解析Markdown命令块
+                            import re
+                            command_match = re.search(r'```command\n(.*?)\n```', ai_reply, re.DOTALL)
+                            if command_match:
+                                command_line = command_match.group(1).strip()
+                                cmd_name, *args = command_line.split()
+                                
+                                # 找到对应的命令函数
+                                cmd_func = next((c[3] for c in commands if c[1] == cmd_name), None)
+                                if not cmd_func:
+                                    print(f"错误：未知命令 {cmd_name}")
+                                    break
+                                    
+                                # 执行命令（参数从工作区自动获取）
+                                try:
+                                    result = cmd_func()
+                                    print(f"\n执行结果：\n{result}\n")
+                                except Exception as e:
+                                    print(f"执行出错：{str(e)}")
                                 break
                                 
                             # 继续收集参数
