@@ -256,9 +256,10 @@ def chat_mode():
                     ("3. 生成求职信", "cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
                     ("4. 生成筛选条件", "filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
                     ("5. 职位推荐", "recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
-                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send)
+                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send),
+                    ("7. 发送邮件", "send-email", "需要收件人地址、主题和正文", send_email)
                 ]
-                
+
                 # 构造动态系统提示
                 # 获取最新工作区状态
                 resumes = ws.get_resumes()
@@ -281,6 +282,7 @@ def chat_mode():
 4. resume_to_sql_filters - 生成筛选条件（需要1简历）
 5. generate_recommendation - 职位推荐（需要1JD+1简历）
 6. extract_contact_and_send - 提取联系信息（需要1JD）
+7. send_email - 发送邮件（需要收件人地址、主题和正文）
 ```
 
 请严格使用以下格式响应：
