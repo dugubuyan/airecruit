@@ -435,9 +435,20 @@ def chat_mode():
                     except Exception as e:
                         print(f"执行出错：{str(e)}")
             else:
-                print("请输入以'/'开头的有效命令或直接回车执行工作区分析")
-                print("请输入以'/'开头的有效命令")
-                print("输入/help查看所有命令")
+                # 非命令输入自动进入工作模式
+                from utils.workspace import WorkspaceManager
+                ws = WorkspaceManager()
+                commands = [
+                    ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
+                    ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
+                    ("3. 生成求职信", "cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
+                    ("4. 生成筛选条件", "filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
+                    ("5. 职位推荐", "recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
+                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send),
+                    ("7. 发送邮件", "send-email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
+                ]
+                cmd_input = text  # 使用用户原始输入
+                # 直接跳转到工作模式处理逻辑
                 
         except (KeyboardInterrupt, EOFError):
             break
