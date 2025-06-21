@@ -11,7 +11,8 @@ __all__ = [
     'generate_cover_letter',
     'resume_to_sql_filters',
     'generate_recommendation',
-    'extract_contact_and_send'
+    'extract_contact_and_send',
+    'send_email'
 ]
 
 WORK_COMMANDS = [
