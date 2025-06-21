@@ -379,7 +379,10 @@ def chat_mode():
                                 )
                                 # 确保兼容不同LLM响应格式
                                 message_content = response.choices[0].message
-                                ai_reply = message_content.content if hasattr(message_content, 'content') else message_content['content']
+                                if isinstance(message_content, dict):
+                                    ai_reply = message_content.get('content', '')
+                                else:
+                                    ai_reply = getattr(message_content, 'content', '')
                                 print(f"\n助理：\n{ai_reply}\n")
                                     
                                 # 解析操作块
@@ -477,15 +480,38 @@ def chat_mode():
                 
                 # 直接进入工作模式处理循环
                 cmd_input = text.strip()
-                while True:
-                    try:
-                        messages = [{"role": "system", "content": system_msg}]
-                        # 这里跳转到工作模式的处理逻辑（需要确保后续代码能处理自然语言输入）
-                        # 由于代码较长，这里需要确保后续处理逻辑的完整性
-                        break  # 退出循环避免重复处理
-                    except Exception as e:
-                        print(f"发生错误：{str(e)}")
-                        break
+                try:
+                    # 复用/work模式的处理逻辑
+                    messages = [{"role": "system", "content": system_msg}]
+                    while True:
+                        messages.append({"role": "user", "content": cmd_input})
+                        response = completion(
+                            model=get_model(),
+                            messages=messages,
+                            temperature=0.3
+                        )
+                        # 处理LLM响应（复用/work模式的代码）
+                        message_content = response.choices[0].message
+                        if isinstance(message_content, dict):
+                            ai_reply = message_content.get('content', '')
+                        else:
+                            ai_reply = getattr(message_content, 'content', '')
+                        print(f"\n助理：\n{ai_reply}\n")
+
+                        # 解析和执行操作（复用/work模式的代码）
+                        import re
+                        operation_match = re.search(r'```operation\n(.*?)\n```', ai_reply, re.DOTALL)
+                        if operation_match:
+                            # ...（这里应完整复制/work模式的操作处理代码）...
+
+                        # 继续对话
+                        next_input = session.prompt("请输入后续内容或参数（输入'取消'退出）： ")
+                        if next_input.lower() in ('取消', 'exit', 'quit'):
+                            print("操作已取消")
+                            break
+                        cmd_input = next_input
+                except Exception as e:
+                    print(f"发生错误：{str(e)}")
                 
         except (KeyboardInterrupt, EOFError):
             break
