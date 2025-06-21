@@ -502,7 +502,40 @@ def chat_mode():
                         import re
                         operation_match = re.search(r'```operation\n(.*?)\n```', ai_reply, re.DOTALL)
                         if operation_match:
-                            # ...（这里应完整复制/work模式的操作处理代码）...
+                            operation_content = operation_match.group(1).strip()
+                            # 解析操作参数
+                            operation_lines = operation_content.split('\n')
+                            operation_type = operation_lines[0].split(': ')[1]
+                            params = {}
+                            for line in operation_lines[2:]:
+                                if ': ' in line:
+                                    key, value = line.split(': ', 1)
+                                    params[key.strip()] = value.strip()
+                            
+                            # 查找匹配的命令
+                            cmd_func = next((c[3] for c in commands if c[0].find(operation_type) != -1), None)
+                            if cmd_func:
+                                # 执行前检查必要参数
+                                missing_params = []
+                                if '收件人' in params and '❌' in params['收件人']:
+                                    missing_params.append('收件人邮箱')
+                                if '附件路径' in params and '❌' in params['附件路径']:
+                                    missing_params.append('附件路径')
+                                
+                                if missing_params:
+                                    print(f"缺少必要参数：{', '.join(missing_params)}")
+                                    cmd_input = session.prompt("请补充缺失参数（格式：参数名=值）：")
+                                else:
+                                    try:
+                                        result = cmd_func(**params)
+                                        print(f"\n✅ 操作成功：\n{result}\n")
+                                        break
+                                    except Exception as e:
+                                        print(f"\n❌ 操作失败：{str(e)}\n")
+                                        break
+                            else:
+                                print(f"未知操作类型：{operation_type}")
+                                break
 
                         # 继续对话
                         next_input = session.prompt("请输入后续内容或参数（输入'取消'退出）： ")
