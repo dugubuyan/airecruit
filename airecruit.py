@@ -377,7 +377,9 @@ def chat_mode():
                                     messages=messages,
                                     temperature=0.3
                                 )
-                                ai_reply = response.choices[0].message['content']  # 使用字典键访问消息内容
+                                # 确保兼容不同LLM响应格式
+                                message_content = response.choices[0].message
+                                ai_reply = message_content.content if hasattr(message_content, 'content') else message_content['content']
                                 print(f"\n助理：\n{ai_reply}\n")
                                     
                                 # 解析操作块
