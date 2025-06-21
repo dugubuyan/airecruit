@@ -202,7 +202,7 @@ def chat_mode():
                                 
                         else:
                             print("错误：无效选项，请输入 0-3 的数字")
-                            
+                        continue
                     except (KeyboardInterrupt, EOFError):
                         break
                 
@@ -264,31 +264,70 @@ def chat_mode():
                 # 获取最新工作区状态
                 resumes = ws.get_resumes()
                 jds = ws.get_jds()
-                system_msg = f'''您正在使用AI招聘助手，当前工作区状态：
+                system_msg = f'''你是一位招聘助手，当前工作区状态：
 📁 简历文件：{len(resumes)}份 ({'✅' if len(resumes)>=1 else '❌'})
 📄 JD文件：{len(jds)}份 ({'✅' if len(jds)>=1 else '❌'})
 
-请按以下步骤操作：
-1. 分析用户需求
-2. 检查所需文件是否齐全
-3. 如果文件不足，引导用户添加
-4. 使用Markdown代码块格式返回要执行的命令
+## System Prompt for AI Recruitment Assistant
 
-可用命令列表（参数自动从工作区获取）：
+You are a recruitment assistant.
+
+Your role is to process user instructions regarding job applications, candidate resumes, and job descriptions (JDs). You can either answer user questions or trigger specific local functions.
+
+### Output Format
+
+* **Always respond using Markdown format**.
+* **When invoking local functionality**, use the custom code block with language identifier `command`, e.g.:
+
 ```command
-1. optimize_resume - 简历优化（需要1JD+1简历）
-2. summarize_resume - 简历摘要（需要1简历） 
-3. generate_cover_letter - 生成求职信（需要1JD+1简历）
-4. resume_to_sql_filters - 生成筛选条件（需要1简历）
-5. generate_recommendation - 职位推荐（需要1JD+1简历）
-6. extract_contact_and_send - 提取联系信息（需要1JD）
-7. send_email - 发送邮件（需要收件人地址、主题和正文）
+<command content here>
 ```
 
-请严格使用以下格式响应：
-```command
-[命令名称] [参数1=值1 参数2=值2 ...]
-```
+---
+
+### Available Local Functions
+
+#### 1. 提取联系方式（Extract contact info from text）
+
+Input: Free-form text
+
+#### 2. 写推荐信并发邮件（Generate and email cover letter）
+
+Inputs:
+
+* 简历信息（Resume, local file or text）
+* JD信息（Job description, local file or text）
+* HR邮箱地址（email address）
+
+#### 3. JD生成数据库过滤项并查询（Generate and execute SQL based on JD）
+
+Inputs:
+
+* JD信息（local file or text）
+* （可选）数据库连接信息（如果未设置，则提示设置）
+
+#### 4. 优化简历以匹配JD（Optimize resume based on JD）
+
+Inputs:
+
+* JD信息（local file or text）
+* 简历信息（local file or text）
+
+#### 5. 简历脱敏摘要并发布（Summarize and anonymize resume for publishing）
+
+Input:
+
+* 简历信息（local file or text）
+
+---
+
+### Interaction Requirements
+
+1. Before invoking a function, **confirm the required input parameters** with the user.
+2. If resume or JD file is missing, **prompt the user to provide the text directly**.
+3. Keep responses **concise**, **precise**, and **easy to follow**.
+4. **Only output the command block and required parameters** for local functions—**no extra explanation**.
+
 
 当前工作区文件：
 {chr(10).join(ws.list_files()) or "暂无文件"}'''
@@ -386,45 +425,10 @@ def chat_mode():
                         break
                     except Exception as e:
                         print(f"执行出错：{str(e)}")
-            
-            elif text.startswith('/file'):
-                # 已处理的file命令分支
-                pass
-            elif text.startswith('/'):
-                print(f"未知命令：{text.split()[0]}")
-                print("请输入有效命令，可用命令列表：")
-                print("/file, /model, /work, /exit, /help")
-                
             else:
-                # 构造包含工作区文件的上下文
-                context = []
-                for f in workspace_files:
-                    try:
-                        file_path = Path(f)
-                        # 只处理文本文件和PDF文件
-                        if file_path.suffix.lower() in ('.txt', '.md'):
-                            with open(f, 'r', encoding='utf-8') as file:
-                                context.append(f"文件 {f} 内容：\n{file.read()}")
-                        elif file_path.suffix.lower() == '.pdf':
-                            # 使用临时文件保存转换后的文本
-                            temp_md = file_path.with_suffix('.temp.md')
-                            convert_pdf_to_md(f, temp_md)
-                            with open(temp_md, 'r', encoding='utf-8') as file:
-                                context.append(f"PDF文件 {f} 转换内容：\n{file.read()}")
-                            temp_md.unlink()  # 删除临时文件
-                        else:
-                            print(f"跳过不支持的文件类型：{f}")
-                    except Exception as e:
-                        print(f"处理文件 {f} 出错：{str(e)}")
-                
-                response = completion(
-                    model=get_model(),
-                    messages=[
-                        {"role": "system", "content": "你是一个招聘助手，当前工作区文件：\n" + '\n'.join(context)},
-                        {"role": "user", "content": text}
-                    ]
-                )
-                print(response.choices[0].message.content)
+                print("请输入以'/'开头的有效命令或直接回车执行工作区分析")
+                print("请输入以'/'开头的有效命令")
+                print("输入/help查看所有命令")
                 
         except (KeyboardInterrupt, EOFError):
             break
