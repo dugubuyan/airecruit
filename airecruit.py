@@ -377,7 +377,7 @@ def chat_mode():
                                     messages=messages,
                                     temperature=0.3
                                 )
-                                ai_reply = response.choices[0].message.content  # 修正消息内容访问方式
+                                ai_reply = response.choices[0].message['content']  # 使用字典键访问消息内容
                                 print(f"\n助理：\n{ai_reply}\n")
                                     
                                 # 解析操作块
