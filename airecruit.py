@@ -368,51 +368,67 @@ def chat_mode():
                             continue
                             
                         # 处理自然语言输入
-                        system_msg = (
-                            "你是一个招聘助手，可以执行以下功能：\n" +
-                            "\n".join([f"{i+1}. {desc[3:]}（需要参数：{params}）" 
-                                    for i, (desc, _, params, _) in enumerate(commands)]) +
-                            "\n请根据用户需求引导完成参数输入"
-                        )
-                        
-                        # 保持对话上下文
                         messages = [{"role": "system", "content": system_msg}]
                         while True:
-                            messages.append({"role": "user", "content": cmd_input})
-                            response = completion(
-                                model=get_model(),
-                                messages=messages
-                            )
-                            ai_reply = response.choices[0].message.content
-                            print(f"助理：{ai_reply}")
-                            
-                            # 解析Markdown命令块
-                            import re
-                            command_match = re.search(r'```command\n(.*?)\n```', ai_reply, re.DOTALL)
-                            if command_match:
-                                command_line = command_match.group(1).strip()
-                                cmd_name, *args = command_line.split()
-                                
-                                # 找到对应的命令函数
-                                cmd_func = next((c[3] for c in commands if c[1] == cmd_name), None)
-                                if not cmd_func:
-                                    print(f"错误：未知命令 {cmd_name}")
-                                    break
+                            try:
+                                messages.append({"role": "user", "content": cmd_input})
+                                response = completion(
+                                    model=get_model(),
+                                    messages=messages,
+                                    temperature=0.3
+                                )
+                                ai_reply = response.choices[0].message['content']
+                                print(f"\n助理：\n{ai_reply}\n")
                                     
-                                # 执行命令（参数从工作区自动获取）
-                                try:
-                                    result = cmd_func()
-                                    print(f"\n执行结果：\n{result}\n")
-                                except Exception as e:
-                                    print(f"执行出错：{str(e)}")
+                                # 解析操作块
+                                import re
+                                operation_match = re.search(r'```operation\n(.*?)\n```', ai_reply, re.DOTALL)
+                                if operation_match:
+                                    operation_content = operation_match.group(1).strip()
+                                    # 解析操作参数
+                                    operation_lines = operation_content.split('\n')
+                                    operation_type = operation_lines[0].split(': ')[1]
+                                    params = {}
+                                    for line in operation_lines[2:]:  # 跳过前两行（操作类型和参数标题）
+                                        if ': ' in line:
+                                            key, value = line.split(': ', 1)
+                                            params[key.strip()] = value.strip()
+                                        
+                                    # 查找匹配的命令
+                                    cmd_func = next((c[3] for c in commands if c[0].find(operation_type) != -1), None)
+                                    if cmd_func:
+                                        # 执行前检查必要参数
+                                        missing_params = []
+                                        if '收件人' in params and '❌' in params['收件人']:
+                                            missing_params.append('收件人邮箱')
+                                        if '附件路径' in params and '❌' in params['附件路径']:
+                                            missing_params.append('附件路径')
+                                            
+                                        if missing_params:
+                                            print(f"缺少必要参数：{', '.join(missing_params)}")
+                                            cmd_input = session.prompt("请补充缺失参数（格式：参数名=值）：")
+                                        else:
+                                            try:
+                                                result = cmd_func(**params)
+                                                print(f"\n✅ 操作成功：\n{result}\n")
+                                                break
+                                            except Exception as e:
+                                                print(f"\n❌ 操作失败：{str(e)}\n")
+                                                break
+                                    else:
+                                        print(f"未知操作类型：{operation_type}")
+                                        break
+                                    
+                                # 继续对话
+                                next_input = session.prompt("请输入后续内容或参数（输入'取消'退出）： ")
+                                if next_input.lower() in ('取消', 'exit', 'quit'):
+                                    print("操作已取消")
+                                    break
+                                cmd_input = next_input
+                                    
+                            except Exception as e:
+                                print(f"发生错误：{str(e)}")
                                 break
-                                
-                            # 继续收集参数
-                            next_input = session.prompt('> ').strip()
-                            if next_input.lower() == '取消':
-                                print("命令已取消")
-                                break
-                            cmd_input = next_input
                             
                     except (KeyboardInterrupt, EOFError):
                         break
