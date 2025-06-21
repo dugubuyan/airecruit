@@ -378,11 +378,9 @@ def chat_mode():
                                     temperature=0.3
                                 )
                                 # 确保兼容不同LLM响应格式
-                                message_content = response.choices[0].message
-                                if isinstance(message_content, dict):
-                                    ai_reply = message_content.get('content', '')
-                                else:
-                                    ai_reply = getattr(message_content, 'content', '')
+                                # 统一转换为字典处理
+                                message_dict = response.choices[0].message.dict() if hasattr(response.choices[0].message, 'dict') else response.choices[0].message
+                                ai_reply = message_dict.get('content', '')
                                 print(f"\n助理：\n{ai_reply}\n")
                                     
                                 # 解析操作块
