@@ -55,8 +55,8 @@ def chat_mode():
     
     print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
     current_config = load_config()
-    # print(f"{RED}{'-'*50}")
-    print(f"当前模型: {get_model()}")
+    print(f"{RED}{'-'*50}")
+    print(f"当前模型: {current_config.get('model', '未设置')}")
     print(f"工作邮箱: {current_config.get('email', '未设置')}")
     print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
     # print(f"{'-'*50}{RESET}")

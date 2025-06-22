@@ -29,7 +29,13 @@ def load_config():
     for key in default_config:
         if key not in config:
             config[key] = default_config[key]
-            
+    
+    # 确保model字段是字符串类型
+    if isinstance(config.get('model'), dict):
+        config['model'] = config['model'].get('name', default_config['default_model'])
+    elif not isinstance(config.get('model'), str):
+        config['model'] = default_config['default_model']
+        
     return config
 
 def get_model():
