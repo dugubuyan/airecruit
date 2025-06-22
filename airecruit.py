@@ -55,14 +55,15 @@ def chat_mode():
     
     print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
     current_config = load_config()
-    print(f"{RED}{'-'*50}")
+    # print(f"{RED}{'-'*50}")
     print(f"当前模型: {get_model()}")
     print(f"工作邮箱: {current_config.get('email', '未设置')}")
     print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
-    print(f"{'-'*50}{RESET}")
+    # print(f"{'-'*50}{RESET}")
     while True:
         try:
             # 显示工作区文件和红色分隔线
+            print(f"{RED}{'-'*50}")
             if workspace_files:
                 print(f"{RED}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
             text = session.prompt('> ')
@@ -233,16 +234,15 @@ def chat_mode():
                 break
                 
             elif text == '/help':
-                print("可用命令：\n"
-                      f"{RED}可用命令列表：{RESET}\n"
+                print(f"可用命令列表：\n"
                       "/file       - 文件管理（添加/查看/删除工作区文件）\n"
                       "/model ls   - 查看所有支持的AI模型列表\n" 
                       "/model <名称> - 切换AI模型（需要先查看支持列表）\n"
                       "/work      - 进入智能工作模式（简历优化/生成求职信等）\n"
-                      f"{RED}系统状态：{RESET}\n"
+                      f"系统状态：\n"
                       f"当前模型：{get_model()}\n"
                       f"工作区文件：{len(workspace_files)}个\n"
-                      f"{RED}输入 /exit 退出程序{RESET}")
+                      f"输入 /exit 退出程序")
                       
             elif text == '/work':
                 print(f"{RED}{'-'*50}")
@@ -630,7 +630,7 @@ if __name__ == "__main__":
         print(f"模型已设置为：{args.model}")
     elif args.browser:
         import webbrowser
-        app.run(debug=True)
+        app.run(host='0.0.0.0', port=5000, debug=True)
         webbrowser.open('http://localhost:5000')
     else:
         chat_mode()
