@@ -50,14 +50,4 @@ def send_email(recipient, subject, body, template=None):
         return "邮件发送成功"
     except Exception as e:
         raise Exception(f"邮件发送失败: {str(e)}")
-````
 
-接下来，这是 `airecruit.py` 的 *SEARCH/REPLACE* 块：
-
-airecruit.py
-````python
-<<<<<<< SEARCH
-    generate_recommendation,
-    extract_contact_and_send,
-    WORK_COMMANDS
-)
