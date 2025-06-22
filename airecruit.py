@@ -167,7 +167,7 @@ def chat_mode():
                                     ws.add_file(
                                         path=str(file_path.resolve()),
                                         file_type=file_type,
-                                        content=content
+                                        content={'text': content}  # 包装为字典格式
                                     )
                                     added.append(file_path.name)
                                     # 刷新工作区文件列表（带类型标记）
