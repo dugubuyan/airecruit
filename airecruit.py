@@ -35,7 +35,7 @@ def chat_mode():
     from prompt_toolkit.completion import WordCompleter
     from prompt_toolkit.styles import Style
     command_completer = WordCompleter([
-        '/file', '/model', '/work', '/exit', '/help'
+        '/file', '/model', '/work', '/mode', '/exit', '/help'
     ], ignore_case=True)
     
     # 定义颜色常量
@@ -56,6 +56,7 @@ def chat_mode():
     print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
     current_config = load_config()
     print(f"{RED}{'-'*50}")
+    print(f"当前模式: {current_config.get('mode', '候选人')}模式")
     print(f"当前模型: {current_config.get('model', '未设置')}")
     print(f"工作邮箱: {current_config.get('email', '未设置')}")
     print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
@@ -224,6 +225,20 @@ def chat_mode():
                 except ValueError as e:
                     print(f"错误：{str(e)}")
                 
+            elif text.startswith('/mode'):
+                parts = text.split(maxsplit=1)
+                if len(parts) < 2:
+                    print(f"当前模式: {current_config.get('mode', '候选人')}模式")
+                    print("使用方法: /mode <candidate|hunter>")
+                    continue
+                try:
+                    set_mode(parts[1].lower())
+                    print(f"工作模式已设置为: {parts[1]}模式")
+                    # 刷新配置显示
+                    current_config = load_config()
+                except ValueError as e:
+                    print(f"错误: {str(e)}")
+                    
             elif text == '/exit':
                 break
                 
@@ -233,6 +248,7 @@ def chat_mode():
                       "/model ls   - 查看所有支持的AI模型列表\n" 
                       "/model <名称> - 切换AI模型（需要先查看支持列表）\n"
                       "/work      - 进入智能工作模式（简历优化/生成求职信等）\n"
+                      "/mode <candidate|hunter> - 切换候选人/猎头模式\n"
                       f"系统状态：\n"
                       f"当前模型：{get_model()}\n"
                       f"工作区文件：{len(workspace_files)}个\n"
