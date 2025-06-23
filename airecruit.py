@@ -13,7 +13,7 @@ from flask import Flask, request, jsonify, render_template
 from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
-from config import load_config, save_config, set_model, get_model
+from config import load_config, save_config, set_model, get_model, set_mode
 
 from commands import (
     optimize_resume,
@@ -191,8 +191,9 @@ def chat_mode():
                                     else:
                                         new_files.append(f)
                                 workspace_files = new_files
-                                config['workspace_files'] = workspace_files
-                                save_config(config)
+                                # 通过WorkspaceManager更新工作区文件
+                                ws.remove_files([workspace_files[i] for i in indexes])
+                                ws.save_workspace()
                                 print(f"已移除文件：{', '.join(removed)}")
                             except (ValueError, IndexError):
                                 print("错误：请输入有效的文件编号")
