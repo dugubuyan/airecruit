@@ -26,10 +26,9 @@ from commands import (
     WORK_COMMANDS
 )
 
+
 # Load environment variables
 load_dotenv()
-
-config = load_config()
 
 def chat_mode():
     """交互式聊天模式"""
@@ -51,8 +50,9 @@ def chat_mode():
             'prompt': '#ff0000 bold',
         })
     )
-    workspace_files = config.get('workspace_files', [])
-    
+    from utils.workspace import WorkspaceManager
+    ws = WorkspaceManager()
+    workspace_files = ws.list_files()
     print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
     current_config = load_config()
     print(f"{RED}{'-'*50}")
@@ -65,7 +65,7 @@ def chat_mode():
             # 显示工作区文件和红色分隔线
             print(f"{RED}{'-'*50}")
             if workspace_files:
-                print(f"{RED}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+                print(f"{RED}工作区文件：" + ", ".join([f for f in workspace_files]) + f"{RESET}")
             text = session.prompt('> ')
             if not text.strip():
                 print("请问您需要我做什么？")
@@ -85,7 +85,7 @@ def chat_mode():
                         # 文件子菜单提示符
                         print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
-                            print(f"{RED}工作区文件：" + ", ".join([Path(f).name for f in workspace_files]) + f"{RESET}")
+                            print(f"{RED}工作区文件：" + ", ".join([f for f in workspace_files]) + f"{RESET}")
                         choice = session.prompt('file> ')
                         
                         if choice.startswith('/'):
@@ -162,12 +162,9 @@ def chat_mode():
                                     file_type = 'resume' if file_type == '1' else 'jd'
                                     
                                     # 添加到工作区
-                                    from utils.workspace import WorkspaceManager
-                                    ws = WorkspaceManager()
                                     ws.add_file(
                                         path=str(file_path.resolve()),
                                         file_type=file_type,
-                                        content={'text': content}  # 包装为字典格式
                                     )
                                     added.append(file_path.name)
                                     # 刷新工作区文件列表（带类型标记）
@@ -176,9 +173,6 @@ def chat_mode():
                                     print(f"跳过不支持的文件类型：{file_path.suffix}")
                             
                             if added:
-                                workspace_files = list(set(workspace_files))  # 去重
-                                config['workspace_files'] = workspace_files
-                                save_config(config)
                                 print(f"已添加文件：{', '.join(added)}")
                                 
                         elif choice == '2':
@@ -249,8 +243,6 @@ def chat_mode():
                 print(f"当前模型: {get_model()}")
                 print(f"工作邮箱: {current_config.get('email', '未设置')}")
                 print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
-                from utils.workspace import WorkspaceManager
-                ws = WorkspaceManager()
                 commands = [
                     ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
                     ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
@@ -260,20 +252,17 @@ def chat_mode():
                     ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send),
                     ("7. 发送邮件", "send-email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
                 ]
-
                 # 构造动态系统提示
                 # 获取最新工作区状态
                 resumes = ws.get_resumes()
                 jds = ws.get_jds()
-                system_msg = f'''## AI 招聘助手系统提示
-
-你是一位智能招聘助手，当前工作区状态：
-📁 简历文件：{len(resumes)}份 ({'✅' if len(resumes)>=1 else '❌'})
-📄 JD文件：{len(jds)}份 ({'✅' if len(jds)>=1 else '❌'})
+                system_msg = f'''## 你是一位智能招聘助手，你可以帮用户优化简历，生成求职信，发送求职邮件等。如果用户提出的需求与招聘无关，请引导到招聘领域。当前工作区状态：
+📁 简历文件内容：{resumes}
+📄 JD文件内容：{jds}
 
 ### 工作模式说明
 
-1. 所有操作基于本地文件和用户输入
+1. 所有操作基于工作区简历和JD文件内容；
 2. 你需要用Markdown格式返回响应
 3. 当需要执行本地操作时，按以下格式返回：
 
@@ -283,46 +272,27 @@ def chat_mode():
   参数1: 值
   参数2: 值
 ```
-
+4. 当用户要求写推荐信，请根据JD的要求针对性地对简历信息进行修改。请返回本地操作 recommend
 ### 支持的操作类型
 
-1. 文件操作：
-   - 转换文件格式（PDF/DOCX → MD）
-   - 添加/移除工作区文件
-   - 生成文件摘要
+1. 写推荐信：
+   - 生成md格式的推荐信，并转换成pdf
+   - 生成简历摘要，不要写姓名，联系方式等敏感信息
 
 2. 邮件操作：
-   - 发送求职信（需要HR邮箱）
-   - 发送简历（需要联系人邮箱）
+   - HR邮箱从jd文件中获取
 
 3. 数据处理：
-   - 从JD提取关键信息（薪资、要求等）
-   - 简历关键信息脱敏
-   - 生成筛选条件
+   - 从JD提取关键信息（薪资、期望工作地点、工作年限等）
+   - 根据sql语句访问数据库
 
 ### 执行要求
 
-1. 操作需要参数时，按以下优先级获取：
+操作需要参数时，按以下优先级获取：
    a) 工作区现有文件内容
    b) 用户主动输入
    c) 要求用户提供缺失参数
 
-2. 邮件操作必须包含以下参数：
-   - 收件人邮箱（优先从JD内容提取）
-   - 邮件主题
-   - 正文内容/模板
-   - 附件路径（可选）
-
-当前工作区文件：
-{chr(10).join(ws.list_files()) or "暂无文件"}
-
-当参数缺失时，用❌标记并提示用户输入。例如：
-```operation
-操作类型: 发送邮件
-参数:
-  收件人: ❌请提供HR邮箱
-  主题: 求职申请 - 前端开发工程师
-  正文: 已生成在workdir/cover_letter.md
 ```'''
                 
                 while True:
@@ -332,7 +302,6 @@ def chat_mode():
                         from utils.workspace import WorkspaceManager
                         ws = WorkspaceManager()
                         workspace_files = ws.list_files()
-                        
                         print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
                             print(f"{RED}当前工作区文件：")
@@ -343,29 +312,6 @@ def chat_mode():
                         if cmd_input.startswith('/'):
                             text = cmd_input  # 将命令传递回主循环
                             break
-                        if cmd_input == '0':
-                            break
-                            
-                        # 处理数字选择
-                        if cmd_input.isdigit():
-                            index = int(cmd_input) - 1
-                            if 0 <= index < len(commands):
-                                _, cmd_name, params_needed, cmd_func = commands[index]
-                                print(f"\n执行 {cmd_name} 命令（{params_needed}）")
-                                
-                                # 收集所需参数
-                                params = []
-                                for param in params_needed.split("和"):
-                                    param = param.replace("需要", "").strip()
-                                    param_input = session.prompt(f"请输入 {param}: ")
-                                    params.append(param_input.strip())
-                                
-                                # 执行命令并显示结果
-                                result = cmd_func(*params)
-                                print(f"\n执行结果：\n{result}\n")
-                            else:
-                                print("错误：请输入有效的编号")
-                            continue
                             
                         # 处理自然语言输入
                         messages = [{"role": "system", "content": system_msg}]
@@ -377,6 +323,7 @@ def chat_mode():
                                     messages=messages,
                                     temperature=0.3
                                 )
+                                print("mesages++++++++++:",messages)
                                 # 确保兼容不同LLM响应格式
                                 # 统一转换为字典处理
                                 message_dict = response.choices[0].message.dict() if hasattr(response.choices[0].message, 'dict') else response.choices[0].message
@@ -439,8 +386,6 @@ def chat_mode():
                         print(f"执行出错：{str(e)}")
             else:
                 # 非命令输入自动进入工作模式
-                from utils.workspace import WorkspaceManager
-                ws = WorkspaceManager()
                 commands = [
                     ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
                     ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
@@ -488,6 +433,7 @@ def chat_mode():
                             messages=messages,
                             temperature=0.3
                         )
+
                         # 处理LLM响应（复用/work模式的代码）
                         message_content = response.choices[0].message
                         if isinstance(message_content, dict):
@@ -547,7 +493,7 @@ def chat_mode():
         except (KeyboardInterrupt, EOFError):
             break
         except Exception as e:
-            print(f"出错：{str(e)}")
+            print(f"出错：{e}")
 
 
 # 文件格式转换功能
@@ -624,13 +570,12 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", action="store_true", help="Show LLM request details")
     parser.add_argument("-m", "--model", type=str, help="Set LLM model")
     args = parser.parse_args()
-
     if args.model:
         set_model(args.model)
         print(f"模型已设置为：{args.model}")
     elif args.browser:
         import webbrowser
-        app.run(host='0.0.0.0', port=5000, debug=True)
-        webbrowser.open('http://localhost:5000')
+        app.run(host='0.0.0.0', port=5001, debug=True)
+        webbrowser.open('http://localhost:5001')
     else:
         chat_mode()

@@ -2,3 +2,4 @@
 .config.json
 workdir/
 .airecruit_history
+__pycache__
