@@ -22,7 +22,8 @@ def load_config():
             'anthropic/claude-2', 
             'cohere/command-nightly',
             'gemini/gemini-2.0-flash'
-        ]
+        ],
+        'mode': 'candidate'
     }
     
     # 合并默认配置（保留现有配置字段）
@@ -51,6 +52,19 @@ def set_model(model):
     if model not in config.get('supported_models', []):
         raise ValueError(f"不支持该模型，请使用/model ls查看支持列表")
     config["model"] = model
+    save_config(config)
+
+def get_mode():
+    """获取当前模式"""
+    return load_config().get('mode', 'candidate')
+
+def set_mode(mode):
+    """设置工作模式"""
+    valid_modes = ['candidate', 'hunter']
+    if mode not in valid_modes:
+        raise ValueError(f"无效模式，可选: {', '.join(valid_modes)}")
+    config = load_config()
+    config['mode'] = mode
     save_config(config)
 
 def save_config(config):
