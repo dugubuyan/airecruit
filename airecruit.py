@@ -266,13 +266,13 @@ def chat_mode():
                 print(f"工作邮箱: {current_config.get('email', '未设置')}")
                 print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
                 commands = [
-                    ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
-                    ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
-                    ("3. 生成求职信", "cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
-                    ("4. 生成筛选条件", "filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
-                    ("5. 职位推荐", "recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
-                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send),
-                    ("7. 发送邮件", "send-email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
+                    ("optimize", "需要职位描述(JD)和简历内容", optimize_resume),
+                    ("summarize", "需要简历内容", summarize_resume),
+                    ("cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
+                    ("filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
+                    ("recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
+                    ("contact", "需要职位描述(JD)", extract_contact_and_send),
+                    ("send-email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
                 ]
                 # 构造动态系统提示
                 # 获取最新工作区状态
@@ -330,7 +330,7 @@ def chat_mode():
                                             params[key.strip()] = value.strip()
                                         
                                     # 查找匹配的命令
-                                    cmd_func = next((c[3] for c in commands if c[0].find(operation_type) != -1), None)
+                                    cmd_func = next((c[2] for c in commands if c[0].find(operation_type) != -1), None)
                                     if cmd_func:
                                         # 执行前检查必要参数
                                         missing_params = []

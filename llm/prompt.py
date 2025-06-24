@@ -28,7 +28,7 @@ def candidate_system_prompt(resumes, jds):
    	-recipient：[jd文件中获取HR邮箱]
    	-subject: [请从jd文件中获取职位名称，格式：求职信-职位名称]
    	-body: [修改后的简历内容]
-熟悉流行的互联网架构设计，有团队管理能力
+熟悉互联网架构设计，有管理能力
 =======
 熟悉流行的互联网架构设计，有团队管理能力
 >>>>>>> REPLACE
