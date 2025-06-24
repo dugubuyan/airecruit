@@ -18,9 +18,9 @@ def candidate_system_prompt(resumes, jds):
 ### 支持的操作类型
 
 1. 优化简历：
-	以diff格式提供简历修改建议，使其更符合职位需求。请在参数1中严格按照diff格式填充
+	以diff格式提供简历修改建议，使其更符合职位需求。请在参数中严格按照diff格式填充
    - 操作名称：optimize
-   - 参数：[diff格式]
+   - 参数：[diff格式修改建议]
 
 2. 生成求职信并发送邮件：
    - 操作名称：generate_cover_letter
@@ -28,10 +28,6 @@ def candidate_system_prompt(resumes, jds):
    	-recipient：[jd文件中获取HR邮箱]
    	-subject: [请从jd文件中获取职位名称，格式：求职信-职位名称]
    	-body: [修改后的简历内容]
-熟悉互联网架构设计，有管理能力
-=======
-熟悉流行的互联网架构设计，有团队管理能力
->>>>>>> REPLACE
 ```
 '''
 
