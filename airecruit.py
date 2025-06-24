@@ -13,8 +13,8 @@ from flask import Flask, request, jsonify, render_template
 from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
-from config import load_config, save_config, set_model, get_model, set_mode
-
+from config import load_config, save_config, set_model, get_model, set_mode, get_mode
+from llm import get_system_prompt
 from commands import (
     optimize_resume,
     generate_cover_letter,
@@ -56,7 +56,7 @@ def chat_mode():
     print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
     current_config = load_config()
     print(f"{RED}{'-'*50}")
-    print(f"当前模式: {current_config.get('mode', '候选人')}模式")
+    print(f"当前模式: {get_mode()}模式")
     print(f"当前模型: {current_config.get('model', '未设置')}")
     print(f"工作邮箱: {current_config.get('email', '未设置')}")
     print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
@@ -229,7 +229,7 @@ def chat_mode():
             elif text.startswith('/mode'):
                 parts = text.split(maxsplit=1)
                 if len(parts) < 2:
-                    print(f"当前模式: {current_config.get('mode', '候选人')}模式")
+                    print(f"当前模式: {get_mode()}模式模式")
                     print("使用方法: /mode <candidate|hunter>")
                     continue
                 try:
@@ -257,6 +257,7 @@ def chat_mode():
                       
             elif text == '/work':
                 print(f"{RED}{'-'*50}")
+                print(f"当前模式: {get_mode()}模式")
                 print(f"当前模型: {get_model()}")
                 print(f"工作邮箱: {current_config.get('email', '未设置')}")
                 print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
@@ -273,45 +274,8 @@ def chat_mode():
                 # 获取最新工作区状态
                 resumes = ws.get_resumes()
                 jds = ws.get_jds()
-                system_msg = f'''## 你是一位智能招聘助手，你可以帮候选人用户优化简历，生成求职信并发送邮件。如果用户提出的需求与招聘无关，请引导到招聘领域。当前工作区状态：
-📁 简历文件内容：{resumes}
-📄 JD文件内容：{jds}
-
-### 工作模式说明
-
-1. 所有操作基于工作区简历和JD文件内容；
-2. 你需要用Markdown格式返回响应
-3. 当需要执行本地操作时，按以下格式返回：
-
-```operation
-操作类型: [操作名称]
-参数:
-  参数1: 值
-  参数2: 值
-```
-4. 当用户要求写推荐信，请根据JD的要求针对性地对简历信息进行修改。请返回本地操作 recommend
-### 支持的操作类型
-
-1. 写推荐信：
-   - 生成md格式的推荐信，并转换成pdf
-   - 生成简历摘要，不要写姓名，联系方式等敏感信息
-
-2. 邮件操作：
-   - HR邮箱从jd文件中获取
-
-3. 数据处理：
-   - 从JD提取关键信息（薪资、期望工作地点、工作年限等）
-   - 根据sql语句访问数据库
-
-### 执行要求
-
-操作需要参数时，按以下优先级获取：
-   a) 工作区现有文件内容
-   b) 用户主动输入
-   c) 要求用户提供缺失参数
-
-```'''
                 
+                system_msg = get_system_prompt(current_config.get('mode', 'candidate'))(resumes, jds)
                 while True:
                     try:
                         # 工作命令子菜单提示符
@@ -340,13 +304,13 @@ def chat_mode():
                                     messages=messages,
                                     temperature=0.3
                                 )
-                                print("mesages++++++++++:",messages)
+                                print("mesages++++++++++222222222:",messages)
                                 # 确保兼容不同LLM响应格式
                                 # 统一转换为字典处理
                                 message_dict = response.choices[0].message.dict() if hasattr(response.choices[0].message, 'dict') else response.choices[0].message
                                 ai_reply = message_dict.get('content', '')
                                 print(f"\n助理：\n{ai_reply}\n")
-                                    
+                                messages.append({"role": "assistant", "content": ai_reply})
                                 # 解析操作块
                                 import re
                                 operation_match = re.search(r'```operation\n(.*?)\n```', ai_reply, re.DOTALL)
@@ -512,22 +476,6 @@ def chat_mode():
         except Exception as e:
             print(f"出错：{e}")
 
-
-# 文件格式转换功能
-def convert_pdf_to_md(pdf_path, output_path):
-    """转换PDF文件到Markdown格式"""
-    from pdfminer.high_level import extract_text
-    text = extract_text(pdf_path)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(text)
-
-def convert_docx_to_md(docx_path, output_path):
-    """转换DOCX文件到Markdown格式"""
-    from docx import Document
-    doc = Document(docx_path)
-    text = '\n'.join([para.text for para in doc.paragraphs])
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(text)
 
 # Local web server with Flask
 app = Flask(__name__)

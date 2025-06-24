@@ -56,7 +56,7 @@ def set_model(model):
 
 def get_mode():
     """获取当前模式"""
-    return load_config().get('mode', 'candidate')
+    return "候选人" if 'candidate' == load_config().get('mode', 'candidate') else '猎头'
 
 def set_mode(mode):
     """设置工作模式"""
