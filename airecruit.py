@@ -10,16 +10,15 @@ from litellm import completion
 from diff_match_patch import diff_match_patch
 import shlex
 from flask import Flask, request, jsonify, render_template
-from utils.workspace import (
-    WorkspaceManager,
-    convert_pdf_to_md,
-    convert_docx_to_md
-)
+from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from config import load_config, save_config, set_model, get_model, set_mode, get_mode
 from llm import get_system_prompt
-from utils.file_utils import 
+from utils.file_utils import (
+    convert_pdf_to_md,
+    convert_docx_to_md,
+)
 from commands import (
     optimize_resume,
     generate_cover_letter,
