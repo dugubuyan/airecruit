@@ -1,6 +1,7 @@
 from pathlib import Path
-import pdfkit
 import os
+from weasyprint import HTML
+import logging
 # 文件格式转换功能
 def convert_pdf_to_md(pdf_path, output_path):
     """转换PDF文件到Markdown格式"""
@@ -37,17 +38,32 @@ def export_md_to_pdf(md_content: str, output_path: str | Path):
         # 确保输出目录存在
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # 配置pdfkit选项
-        options = {
-            'encoding': 'UTF-8',
-            'enable-local-file-access': None  # 允许加载本地资源
-        }
+        # 添加基本样式
+        html_content = f"""
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body {{ 
+                        font-family: SimSun;
+                        line-height: 1.6;
+                        margin: 2cm;
+                    }}
+                    h1, h2, h3 {{ color: #2c3e50; }
+                    a {{ color: #3498db; text-decoration: none; }
+                </style>
+            </head>
+            <body>
+                {md_content}
+            </body>
+        </html>
+        """
         
-        # 使用pdfkit转换Markdown到PDF
-        pdfkit.from_string(
-            input=md_content,
-            output_path=str(output_path),
-            options=options
+        # 使用WeasyPrint生成PDF
+        HTML(string=html_content).write_pdf(
+            target=str(output_path),
+            stylesheets=None,
+            presentational_hints=True
         )
         
         return str(output_path)
