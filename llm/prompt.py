@@ -30,11 +30,7 @@ def candidate_system_prompt(resumes, jds):
    	-body: [修改后的简历内容]
 ##示例应答：
 好的，我将给您优化您的简历。
-```operation
-操作类型: optimize_resume
-参数: 
-<<<<<<< SEARCH
-熟悉互联网架构设计，有管理能力
+熟悉流行的互联网架构设计，有团队管理能力
 =======
 熟悉流行的互联网架构设计，有团队管理能力
 >>>>>>> REPLACE
