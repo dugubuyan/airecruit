@@ -1,3 +1,6 @@
+from pathlib import Path
+import pdfkit
+import os
 # 文件格式转换功能
 def convert_pdf_to_md(pdf_path, output_path):
     """转换PDF文件到Markdown格式"""
@@ -15,10 +18,6 @@ def convert_docx_to_md(docx_path, output_path):
         f.write(text)
 
 # --- Export to PDF ---
-from pathlib import Path
-import pdfkit
-import os
-
 def export_md_to_pdf(md_content: str, output_path: str | Path):
     """
     将Markdown内容转换为PDF文件
