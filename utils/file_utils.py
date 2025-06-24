@@ -49,8 +49,8 @@ def export_md_to_pdf(md_content: str, output_path: str | Path):
                         line-height: 1.6;
                         margin: 2cm;
                     }}
-                    h1, h2, h3 {{ color: #2c3e50; }
-                    a {{ color: #3498db; text-decoration: none; }
+                    h1, h2, h3 {{ color: #2c3e50; }}
+                    a {{ color: #3498db; text-decoration: none; }}
                 </style>
             </head>
             <body>
