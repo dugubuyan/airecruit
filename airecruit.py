@@ -309,10 +309,19 @@ def chat_mode():
                                     temperature=0.3
                                 )
                                 print("mesages++++++++++222222222:",messages)
-                                # 确保兼容不同LLM响应格式
-                                # 统一转换为字典处理
-                                message_dict = response.choices[0].message.dict() if hasattr(response.choices[0].message, 'dict') else response.choices[0].message
+                                # 统一处理不同LLM响应格式为字典
+                                choice = response.choices[0]
+                                message = choice.message
+                                
+                                # 转换Pydantic模型为字典
+                                if hasattr(message, 'dict'):
+                                    message_dict = message.dict()
+                                else:
+                                    message_dict = dict(message)
+                                
                                 ai_reply = message_dict.get('content', '')
+                                # 同时处理finish_reason字段
+                                finish_reason = getattr(choice, 'finish_reason', None)
                                 print(f"\n助理：\n{ai_reply}\n")
                                 messages.append({"role": "assistant", "content": ai_reply})
                                 # 解析操作块
@@ -419,12 +428,19 @@ def chat_mode():
                             temperature=0.3
                         )
 
-                        # 处理LLM响应（复用/work模式的代码）
-                        message_content = response.choices[0].message
-                        if isinstance(message_content, dict):
-                            ai_reply = message_content.get('content', '')
+                        # 统一处理LLM响应格式为字典
+                        choice = response.choices[0]
+                        message = choice.message
+                        
+                        # 转换Pydantic模型为字典
+                        if hasattr(message, 'dict'):
+                            message_dict = message.dict()
                         else:
-                            ai_reply = getattr(message_content, 'content', '')
+                            message_dict = dict(message)
+                        
+                        ai_reply = message_dict.get('content', '')
+                        # 同时处理finish_reason字段
+                        finish_reason = getattr(choice, 'finish_reason', None)
                         print(f"\n助理：\n{ai_reply}\n")
 
                         # 解析和执行操作（复用/work模式的代码）
