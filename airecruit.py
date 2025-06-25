@@ -27,7 +27,8 @@ from commands import (
     generate_recommendation,
     extract_contact_and_send,
     send_email,
-    WORK_COMMANDS
+    WORK_COMMANDS,
+    optimize_resume
 )
 
 
@@ -529,7 +530,7 @@ def api_optimize():
         with open(jd_path, 'r', encoding='utf-8') as f:
             jd_content = f.read()
         
-        result = optimize_resume(jd_content, resume_content)
+        result = optimize_resume.optimize_resume(jd_content, resume_content)
         return jsonify({"optimized": result})
         
     except Exception as e:
