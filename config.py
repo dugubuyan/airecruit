@@ -15,6 +15,10 @@ def load_config():
         'default_model': 'ollama/mistral:7b-instruct',
         'last_model': None,
         'model': 'ollama/mistral:7b-instruct',
+        'sender_email': '',
+        'sender_password': '',
+        'smtp_server': '',
+        'smtp_port': 465,
         'workspace_files': [],
         'supported_models': [
             'ollama/mistral:7b-instruct',
@@ -65,6 +69,33 @@ def set_mode(mode):
         raise ValueError(f"无效模式，可选: {', '.join(valid_modes)}")
     config = load_config()
     config['mode'] = mode
+    save_config(config)
+
+def get_smtp_config():
+    """获取SMTP服务器配置"""
+    config = load_config()
+    return {
+        'sender_email': config.get('sender_email', ''),
+        'sender_password': config.get('sender_password', ''),
+        'smtp_server': config.get('smtp_server', ''),
+        'smtp_port': config.get('smtp_port', 465)
+    }
+
+def set_smtp_config(sender_email: str, sender_password: str, smtp_server: str, smtp_port: int = 465):
+    """设置SMTP服务器配置"""
+    if not all([sender_email, sender_password, smtp_server]):
+        raise ValueError("邮箱、密码和SMTP服务器地址不能为空")
+    
+    if smtp_port not in [465, 587, 25]:
+        raise ValueError("无效的SMTP端口，常用端口：465(SSL), 587(TLS), 25(非加密)")
+    
+    config = load_config()
+    config.update({
+        'sender_email': sender_email,
+        'sender_password': sender_password,
+        'smtp_server': smtp_server,
+        'smtp_port': smtp_port
+    })
     save_config(config)
 
 def save_config(config):
