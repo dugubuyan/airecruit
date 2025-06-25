@@ -20,7 +20,7 @@ from utils.file_utils import (
     convert_docx_to_md,
 )
 from commands import (
-    optimize_resume,
+    pdf_export,
     generate_cover_letter,
     summarize_resume,
     resume_to_sql_filters,
@@ -266,12 +266,7 @@ def chat_mode():
                 print(f"工作邮箱: {current_config.get('email', '未设置')}")
                 print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
                 commands = [
-                    ("optimize", "需要职位描述(JD)和简历内容", optimize_resume),
-                    ("summarize", "需要简历内容", summarize_resume),
-                    ("cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
-                    ("filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
-                    ("recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
-                    ("contact", "需要职位描述(JD)", extract_contact_and_send),
+                    ("export2pdf", "需要md格式的内容", pdf_export.export_to_pdf),
                     ("send-email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
                 ]
                 # 构造动态系统提示

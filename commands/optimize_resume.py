@@ -17,11 +17,3 @@ from utils.file_utils import export_md_to_pdf
 #     except Exception as e:
 #         return f"优化过程中发生错误：{str(e)}"
 
-
-def export_to_pdf(md_content):
-    try:
-        work_dir = Path("workdir")
-        pdf_path = export_md_to_pdf(md_content, work_dir)
-        return f"简历优化完成，PDF文件已生成至：{pdf_path}"
-    except Exception as e:
-        return f"发生错误：{str(e)}"
