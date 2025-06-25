@@ -11,9 +11,8 @@ def candidate_system_prompt(resumes, jds):
 4. 生成求职信的时候，请根据jd内容总结简历内容，突出贴合职位需求，要求简洁。最后请询问用户是否需要发邮件；
 5. 询问用户是否导出到pdf文件或者是否需要发邮件的时候，用户回答“ok”，“好的”或者“确认”等肯定意图的时候，请在回答里添加本地操作；
 6. 本地操作有两种：导出到pdf文件和发邮件，请在应答中包含以下格式：
-```operation
-操作类型: [操作名称]
-参数:值
+```json
+{{"action":操作名称,"para1":"value1","para2":"value2"}}
 ```
 
 ### 支持的操作类型
@@ -41,11 +40,8 @@ def hunter_system_prompt(resumes, jds):
 2. 你需要用Markdown格式返回响应
 3. 当需要执行本地操作时，按以下格式返回：
 
-```operation
-操作类型: [操作名称]
-参数:
-  参数1: 值
-  参数2: 值
+```json
+{{"action":操作名称,"para1":"value1","para2":"value2"}}
 ```
 
 ### 支持的操作类型

@@ -15,11 +15,3 @@ __all__ = [
     'send_email'
 ]
 
-WORK_COMMANDS = [
-    # 'optimize',
-    'summarize',
-    'cover-letter',
-    'filters',
-    'recommend',
-    'contact'
-]

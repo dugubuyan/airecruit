@@ -1,7 +1,10 @@
 from pathlib import Path
 import os
+import webbrowser
+from urllib.parse import quote
 from weasyprint import HTML
-import logging
+from markdown import markdown
+
 # 文件格式转换功能
 def convert_pdf_to_md(pdf_path, output_path):
     """转换PDF文件到Markdown格式"""
@@ -37,7 +40,7 @@ def export_md_to_pdf(md_content: str, output_path: str | Path):
             
         # 确保输出目录存在
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+        html = markdown(md_content, extensions=["tables", "fenced_code"])
         # 添加基本样式
         html_content = f"""
         <html>
@@ -54,7 +57,7 @@ def export_md_to_pdf(md_content: str, output_path: str | Path):
                 </style>
             </head>
             <body>
-                {md_content}
+                {html}
             </body>
         </html>
         """
@@ -69,3 +72,29 @@ def export_md_to_pdf(md_content: str, output_path: str | Path):
         return str(output_path)
     except Exception as e:
         raise RuntimeError(f"PDF生成失败: {str(e)}") from e
+
+
+def open_pdf_in_browser(pdf_path):
+    """
+    在默认浏览器中打开本地 PDF 文件
+    
+    参数:
+    pdf_path (str): PDF 文件的完整路径
+    """
+    # 确保文件存在
+    pdf_path = Path(pdf_path)
+    if not pdf_path.exists():
+        raise FileNotFoundError(f"PDF 文件不存在: {pdf_path}")
+    
+    # 转换路径为 file:// URL 格式（处理空格和特殊字符）
+    # 使用 quote 对路径进行编码，确保 URL 有效性
+    abs_path = pdf_path.resolve()
+    encoded_path = quote(str(abs_path))
+    pdf_url = f"file://{encoded_path}"
+    
+    # 在默认浏览器中打开,暂时指定chrome
+    chrome = webbrowser.get('chrome')
+    chrome.open(pdf_url)
+    
+    return f"正在打开: {abs_path}"
+

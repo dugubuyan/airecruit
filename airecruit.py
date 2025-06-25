@@ -21,14 +21,7 @@ from utils.file_utils import (
 )
 from commands import (
     pdf_export,
-    generate_cover_letter,
-    summarize_resume,
-    resume_to_sql_filters,
-    generate_recommendation,
-    extract_contact_and_send,
-    send_email,
-    WORK_COMMANDS,
-    optimize_resume
+    send_email
 )
 
 
@@ -268,13 +261,12 @@ def chat_mode():
                 print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
                 commands = [
                     ("export2pdf", "需要md格式的内容", pdf_export.export_to_pdf),
-                    ("send-email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
+                    ("send_email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
                 ]
                 # 构造动态系统提示
                 # 获取最新工作区状态
                 resumes = ws.get_resumes()
                 jds = ws.get_jds()
-                
                 system_msg = get_system_prompt(current_config.get('mode', 'candidate'))(resumes, jds)
                 while True:
                     try:
@@ -325,32 +317,34 @@ def chat_mode():
                                 operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
                                 if operation_match:
                                     operation_content = operation_match.group(1).strip()
+                                    print("operation_content::::", operation_content)
                                     # 解析JSON参数
                                     operation_json = json.loads(operation_content)
                                     operation_type = operation_json['action']
+                                    print(f"操作类型：{operation_type}")
                                     params = {k: v for k, v in operation_json.items() if k != 'action'}
                                         
                                     # 查找匹配的命令
                                     cmd_func = next((c[2] for c in commands if c[0].find(operation_type) != -1), None)
                                     if cmd_func:
                                         # 执行前检查必要参数
-                                        missing_params = []
-                                        if '收件人' in params and '❌' in params['收件人']:
-                                            missing_params.append('收件人邮箱')
-                                        if '附件路径' in params and '❌' in params['附件路径']:
-                                            missing_params.append('附件路径')
+                                        # missing_params = []
+                                        # if '收件人' in params and '❌' in params['收件人']:
+                                        #     missing_params.append('收件人邮箱')
+                                        # if '附件路径' in params and '❌' in params['附件路径']:
+                                        #     missing_params.append('附件路径')
                                             
-                                        if missing_params:
-                                            print(f"缺少必要参数：{', '.join(missing_params)}")
-                                            cmd_input = session.prompt("请补充缺失参数（格式：参数名=值）：")
-                                        else:
-                                            try:
-                                                result = cmd_func(**params)
-                                                print(f"\n✅ 操作成功：\n{result}\n")
-                                                break
-                                            except Exception as e:
-                                                print(f"\n❌ 操作失败：{str(e)}\n")
-                                                break
+                                        # if missing_params:
+                                        #     print(f"缺少必要参数：{', '.join(missing_params)}")
+                                        #     cmd_input = session.prompt("请补充缺失参数（格式：参数名=值）：")
+                                        # else:
+                                        try:
+                                            result = cmd_func(**params)
+                                            print(f"\n✅ 操作成功\n{result}\n")
+                                            break
+                                        except Exception as e:
+                                            print(f"\n❌ 操作失败：{str(e)}\n")
+                                            break
                                     else:
                                         print(f"未知操作类型：{operation_type}")
                                         break
@@ -372,112 +366,8 @@ def chat_mode():
                         print(f"执行出错：{str(e)}")
             else:
                 # 非命令输入自动进入工作模式
-                commands = [
-                    ("1. 简历优化", "optimize", "需要职位描述(JD)和简历内容", optimize_resume),
-                    ("2. 简历摘要", "summarize", "需要简历内容", summarize_resume),
-                    ("3. 生成求职信", "cover-letter", "需要职位描述(JD)和简历内容", generate_cover_letter),
-                    ("4. 生成筛选条件", "filters", "需要简历内容生成SQL条件", resume_to_sql_filters),
-                    ("5. 职位推荐", "recommend", "需要职位描述(JD)和简历内容", generate_recommendation),
-                    ("6. 提取联系信息", "contact", "需要职位描述(JD)", extract_contact_and_send),
-                    ("7. 发送邮件", "send-email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
-                ]
-                
-                # 获取最新工作区状态
-                resumes = ws.get_resumes()
-                jds = ws.get_jds()
-                
-                # 构造系统提示
-                system_msg = f'''## AI 招聘助手系统提示
-你是一位智能招聘助手，当前工作区状态：
-📁 简历文件：{len(resumes)}份 ({'✅' if len(resumes)>=1 else '❌'})
-📄 JD文件：{len(jds)}份 ({'✅' if len(jds)>=1 else '❌'})
-
-### 工作模式说明
-
-1. 所有操作基于本地文件和用户输入
-2. 你需要用Markdown格式返回响应
-3. 当需要执行本地操作时，按以下格式返回：
-
-```operation
-操作类型: [操作名称]
-参数:
-  参数1: 值
-  参数2: 值
-```
-
-### 支持的操作类型、执行要求等内容与/work模式一致'''
-                
-                # 直接进入工作模式处理循环
-                cmd_input = text.strip()
-                try:
-                    # 复用/work模式的处理逻辑
-                    messages = [{"role": "system", "content": system_msg}]
-                    while True:
-                        messages.append({"role": "user", "content": cmd_input})
-                        response = completion(
-                            model=get_model(),
-                            messages=messages,
-                            temperature=0.3
-                        )
-
-                        # 统一处理LLM响应格式为字典
-                        choice = response.choices[0]
-                        message = choice.message
-                        
-                        # 转换Pydantic模型为字典
-                        if hasattr(message, 'dict'):
-                            message_dict = message.dict()
-                        else:
-                            message_dict = dict(message)
-                        
-                        ai_reply = message_dict.get('content', '')
-                        # 同时处理finish_reason字段
-                        finish_reason = getattr(choice, 'finish_reason', None)
-                        print(f"\n助理：\n{ai_reply}\n")
-
-                        # 解析和执行操作（复用/work模式的代码）
-                        import re
-                        operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
-                        if operation_match:
-                            operation_content = operation_match.group(1).strip()
-                            # 解析JSON参数
-                            operation_json = json.loads(operation_content)
-                            operation_type = operation_json['action']
-                            params = {k: v for k, v in operation_json.items() if k != 'action'}
-                            
-                            # 查找匹配的命令
-                            cmd_func = next((c[3] for c in commands if c[0].find(operation_type) != -1), None)
-                            if cmd_func:
-                                # 执行前检查必要参数
-                                missing_params = []
-                                if '收件人' in params and '❌' in params['收件人']:
-                                    missing_params.append('收件人邮箱')
-                                if '附件路径' in params and '❌' in params['附件路径']:
-                                    missing_params.append('附件路径')
-                                
-                                if missing_params:
-                                    print(f"缺少必要参数：{', '.join(missing_params)}")
-                                    cmd_input = session.prompt("请补充缺失参数（格式：参数名=值）：")
-                                else:
-                                    try:
-                                        result = cmd_func(**params)
-                                        print(f"\n✅ 操作成功：\n{result}\n")
-                                        break
-                                    except Exception as e:
-                                        print(f"\n❌ 操作失败：{str(e)}\n")
-                                        break
-                            else:
-                                print(f"未知操作类型：{operation_type}")
-                                break
-
-                        # 继续对话
-                        next_input = session.prompt("请输入后续内容或参数（输入'取消'退出）： ")
-                        if next_input.lower() in ('取消', 'exit', 'quit'):
-                            print("操作已取消")
-                            break
-                        cmd_input = next_input
-                except Exception as e:
-                    print(f"发生错误：{str(e)}")
+                text = '/work'
+                continue
                 
         except (KeyboardInterrupt, EOFError):
             break
@@ -512,29 +402,29 @@ def api_files():
 def api_optimize():
     from utils.workspace import WorkspaceManager
     ws = WorkspaceManager()
-    
-    try:
-        # 从工作区获取最新简历和JD
-        resumes = ws.get_resumes()
-        jds = ws.get_jds()
+    return jsonify({"optimized": 'success'})
+    # try:
+    #     # 从工作区获取最新简历和JD
+    #     resumes = ws.get_resumes()
+    #     jds = ws.get_jds()
         
-        if not resumes or not jds:
-            return jsonify({"error": "需要至少一份简历和职位描述"}), 400
+    #     if not resumes or not jds:
+    #         return jsonify({"error": "需要至少一份简历和职位描述"}), 400
             
-        # 使用第一个找到的简历和JD
-        resume_path = resumes[0]
-        jd_path = jds[0]
+    #     # 使用第一个找到的简历和JD
+    #     resume_path = resumes[0]
+    #     jd_path = jds[0]
 
-        with open(resume_path, 'r', encoding='utf-8') as f:
-            resume_content = f.read()
-        with open(jd_path, 'r', encoding='utf-8') as f:
-            jd_content = f.read()
+    #     with open(resume_path, 'r', encoding='utf-8') as f:
+    #         resume_content = f.read()
+    #     with open(jd_path, 'r', encoding='utf-8') as f:
+    #         jd_content = f.read()
         
-        result = optimize_resume.optimize_resume(jd_content, resume_content)
-        return jsonify({"optimized": result})
+    #     result = optimize_resume.optimize_resume(jd_content, resume_content)
+    #     return jsonify({"optimized": result})
         
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # except Exception as e:
+    #     return jsonify({"error": str(e)}), 500
 
 # CLI
 if __name__ == "__main__":
