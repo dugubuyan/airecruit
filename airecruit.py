@@ -321,17 +321,13 @@ def chat_mode():
                                 messages.append({"role": "assistant", "content": ai_reply})
                                 # 解析操作块
                                 import re
-                                operation_match = re.search(r'```operation\n(.*?)\n```', ai_reply, re.DOTALL)
+                                operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
                                 if operation_match:
                                     operation_content = operation_match.group(1).strip()
-                                    # 解析操作参数
-                                    operation_lines = operation_content.split('\n')
-                                    operation_type = operation_lines[0].split(': ')[1]
-                                    params = {}
-                                    for line in operation_lines[2:]:  # 跳过前两行（操作类型和参数标题）
-                                        if ': ' in line:
-                                            key, value = line.split(': ', 1)
-                                            params[key.strip()] = value.strip()
+                                    # 解析JSON参数
+                                    operation_json = json.loads(operation_content)
+                                    operation_type = operation_json['action']
+                                    params = {k: v for k, v in operation_json.items() if k != 'action'}
                                         
                                     # 查找匹配的命令
                                     cmd_func = next((c[2] for c in commands if c[0].find(operation_type) != -1), None)
@@ -440,17 +436,13 @@ def chat_mode():
 
                         # 解析和执行操作（复用/work模式的代码）
                         import re
-                        operation_match = re.search(r'```operation\n(.*?)\n```', ai_reply, re.DOTALL)
+                        operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
                         if operation_match:
                             operation_content = operation_match.group(1).strip()
-                            # 解析操作参数
-                            operation_lines = operation_content.split('\n')
-                            operation_type = operation_lines[0].split(': ')[1]
-                            params = {}
-                            for line in operation_lines[2:]:
-                                if ': ' in line:
-                                    key, value = line.split(': ', 1)
-                                    params[key.strip()] = value.strip()
+                            # 解析JSON参数
+                            operation_json = json.loads(operation_content)
+                            operation_type = operation_json['action']
+                            params = {k: v for k, v in operation_json.items() if k != 'action'}
                             
                             # 查找匹配的命令
                             cmd_func = next((c[3] for c in commands if c[0].find(operation_type) != -1), None)
