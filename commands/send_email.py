@@ -12,6 +12,7 @@ def send_email(recipient, subject, body, template=None):
     :param body: 邮件正文
     :param template: 邮件模版，如果为None则使用默认模版
     """
+    print("send_email::",recipient, subject, body)
     config = load_config()
     sender = config.get('email')  # 发件人邮箱
     password = config.get('email_password')  # 发件人邮箱密码

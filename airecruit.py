@@ -289,11 +289,11 @@ def chat_mode():
                         workspace_files = ws.list_files()
                         print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
-                            print(f"{RED}当前工作区文件：")
-                            for f in workspace_files:
-                                print(f"  {f}")
-                        print(f"{RED}{'-'*50}{RESET}")
+                            print(f"{RED}工作区文件：" + " ".join([f for f in workspace_files]) + f"{RESET}")
+                            
                         cmd_input = session.prompt('work> ').strip()
+                        if not cmd_input:
+                            print("请问您需要我做什么？")
                         if cmd_input.startswith('/'):
                             text = cmd_input  # 将命令传递回主循环
                             break
