@@ -23,6 +23,13 @@ from commands import (
     pdf_export,
     send_email
 )
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    message="Pydantic serializer warnings:"
+)
 
 # Load environment variables
 load_dotenv()
@@ -295,22 +302,22 @@ def chat_mode():
                                     messages=messages,
                                     temperature=0.3
                                 )
-                                print("mesages++++++++++222222222:",messages)
+                                # print("mesages++++++++++222222222:",messages)
                                 # 统一处理不同LLM响应格式为字典
                                 choice = response.choices[0]
                                 message = choice.message
                                 
                                 # 处理Pydantic模型兼容性（支持v1和v2）
-                                try:
-                                    # 优先使用Pydantic v2的model_dump方法
-                                    message_dict = message.model_dump()
-                                except AttributeError:
-                                    # 回退到v1的dict方法
-                                    message_dict = message.dict()
-                                
-                                ai_reply = message_dict.get('content', '')
+                                # try:
+                                #     # 优先使用Pydantic v2的model_dump方法
+                                #     message_dict = message.model_dump(warnings=False)
+                                # except AttributeError:
+                                #     # 回退到v1的dict方法
+                                #     print("使用 dict 方法")
+                                #     message_dict = message.dict()
+                                ai_reply = message['content']
                                 # 直接获取finish_reason字段
-                                finish_reason = getattr(choice, 'finish_reason', None)
+                                # finish_reason = getattr(choice, 'finish_reason', None)
                                 print(f"\n助理：\n{ai_reply}\n")
                                 messages.append({"role": "assistant", "content": ai_reply})
                                 # 解析操作块
