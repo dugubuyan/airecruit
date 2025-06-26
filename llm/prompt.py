@@ -25,7 +25,8 @@ def candidate_system_prompt(resumes, jds):
    - 操作名称：send_email
    -recipient：[jd文件中获取HR邮箱]
    -subject: [请从jd文件中获取职位名称，格式：求职信-职位名称]
-   -body: [并在最后加上一句：“简历文件见附件”]
+   -body: [在最后加上一句：“简历文件见附件”]
+   -has_attachment："true" 
 ```
 '''
 

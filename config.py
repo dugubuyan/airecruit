@@ -78,10 +78,10 @@ def get_smtp_config():
         'sender_email': config.get('sender_email', ''),
         'sender_password': config.get('sender_password', ''),
         'smtp_server': config.get('smtp_server', ''),
-        'smtp_port': config.get('smtp_port', 465)
+        'smtp_port': config.get('smtp_port', 587)
     }
 
-def set_smtp_config(sender_email: str, sender_password: str, smtp_server: str, smtp_port: int = 465):
+def set_smtp_config(sender_email: str, sender_password: str, smtp_server: str, smtp_port: int = 587):
     """设置SMTP服务器配置"""
     if not all([sender_email, sender_password, smtp_server]):
         raise ValueError("邮箱、密码和SMTP服务器地址不能为空")

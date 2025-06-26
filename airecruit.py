@@ -13,7 +13,7 @@ from flask import Flask, request, jsonify, render_template
 from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
-from config import load_config, save_config, set_model, get_model, set_mode, get_mode
+from config import load_config, save_config, set_model, get_model, set_mode, get_mode,set_smtp_config
 from llm import get_system_prompt
 from utils.file_utils import (
     convert_pdf_to_md,
@@ -23,7 +23,6 @@ from commands import (
     pdf_export,
     send_email
 )
-
 
 # Load environment variables
 load_dotenv()
@@ -237,7 +236,7 @@ def chat_mode():
                     current_config = load_config()
                 except ValueError as e:
                     print(f"错误: {str(e)}")
-                    
+
             elif text == '/exit':
                 break
                 
@@ -317,7 +316,7 @@ def chat_mode():
                                 operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
                                 if operation_match:
                                     operation_content = operation_match.group(1).strip()
-                                    print("operation_content::::", operation_content)
+                                    # print("operation_content::::", operation_content)
                                     # 解析JSON参数
                                     operation_json = json.loads(operation_content)
                                     operation_type = operation_json['action']
@@ -327,17 +326,6 @@ def chat_mode():
                                     # 查找匹配的命令
                                     cmd_func = next((c[2] for c in commands if c[0].find(operation_type) != -1), None)
                                     if cmd_func:
-                                        # 执行前检查必要参数
-                                        # missing_params = []
-                                        # if '收件人' in params and '❌' in params['收件人']:
-                                        #     missing_params.append('收件人邮箱')
-                                        # if '附件路径' in params and '❌' in params['附件路径']:
-                                        #     missing_params.append('附件路径')
-                                            
-                                        # if missing_params:
-                                        #     print(f"缺少必要参数：{', '.join(missing_params)}")
-                                        #     cmd_input = session.prompt("请补充缺失参数（格式：参数名=值）：")
-                                        # else:
                                         try:
                                             result = cmd_func(**params)
                                             print(f"\n✅ 操作成功\n{result}\n")

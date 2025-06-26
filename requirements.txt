@@ -10,3 +10,4 @@ click==8.1.7
 setuptools==68.2.2
 anyio>=4.7.0
 weasyprint==65.1
+redmail==0.6.0
