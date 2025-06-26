@@ -183,19 +183,35 @@ def chat_mode():
                             pass  # 前面已经显示过文件列表
                             
                         elif choice == '3':
+                            # 获取原始文件路径列表
+                            all_files = [f['path'] for f in ws.config['workspace_files']]
+                            if not all_files:
+                                print("工作区中没有文件可移除")
+                                continue
+                                
+                            print("\n当前工作区文件：")
+                            for i, path in enumerate(all_files, 1):
+                                print(f"{i}. {Path(path).name}")
+                                
                             to_remove = session.prompt("请输入要移除的文件编号（多个用空格分隔）: ")
+                            if not to_remove.strip():
+                                print("操作已取消")
+                                continue
+                                
                             try:
-                                indexes = [int(i)-1 for i in to_remove.split()]
-                                removed = []
-                                # 获取实际要移除的文件路径（去掉类型标记）
-                                all_files = [f['path'] for f in ws.config['workspace_files']]
-                                selected_paths = [all_files[i] for i in indexes]
+                                indexes = [int(i) for i in to_remove.split()]
+                                # 验证编号有效性
+                                if any(i < 1 or i > len(all_files) for i in indexes):
+                                    raise ValueError("编号超出范围")
+                                    
+                                selected_paths = [all_files[i-1] for i in indexes]
+                                removed_files = [Path(p).name for p in selected_paths]
                                 
                                 # 通过WorkspaceManager更新工作区文件
                                 ws.remove_files(selected_paths)
                                 # 刷新工作区文件列表
                                 workspace_files = ws.list_files()
-                                print(f"已移除文件：{', '.join(removed)}")
+                                print(f"\n✅ 已移除文件：{', '.join(removed_files)}")
                             except (ValueError, IndexError):
                                 print("错误：请输入有效的文件编号")
                                 

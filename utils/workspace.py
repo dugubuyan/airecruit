@@ -62,3 +62,7 @@ class WorkspaceManager:
             f"{Path(f['path']).name} [{f['type'].upper()}]" 
             for f in self.config['workspace_files']
         ]
+    
+    def get_raw_files(self):
+        """返回原始文件路径列表"""
+        return [f['path'] for f in self.config['workspace_files']]
