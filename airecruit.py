@@ -152,8 +152,8 @@ def chat_mode():
                                         print(f"转换文件 {f} 失败：{str(e)}")
                                 elif file_path.suffix.lower() in ('.txt', '.md'):
                                     # 读取文件内容
-                                    with open(file_path, 'r', encoding='utf-8') as f:
-                                        content = f.read()
+                                    # with open(file_path, 'r', encoding='utf-8') as f:
+                                    #     content = f.read()
                                     
                                     # 让用户分类文件类型
                                     file_type = session.prompt(

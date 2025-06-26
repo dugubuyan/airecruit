@@ -13,7 +13,7 @@ def send_email(recipient, subject, body, has_attachment, template=None):
     :param body: 邮件正文
     :param template: 邮件模版，如果为None则使用默认模版
     """
-    print("send_email::",recipient, subject, body)
+    # print("send_email::",recipient, subject, body)
     config = get_smtp_config()
 
     sender = config['sender_email'] # 发件人邮箱

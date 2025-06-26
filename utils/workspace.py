@@ -42,6 +42,7 @@ class WorkspaceManager:
     
     def get_jds(self):
         """获取所有职位描述内容"""
+        content = {}
         for f in self.config['workspace_files']:
             if f['type'] == 'jd':
                 with open(f['path'], 'r', encoding='utf-8') as file:
