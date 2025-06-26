@@ -196,7 +196,6 @@ def chat_mode():
                                 ws.remove_files(selected_paths)
                                 # 刷新工作区文件列表
                                 workspace_files = ws.list_files()
-                                ws.save_workspace()
                                 print(f"已移除文件：{', '.join(removed)}")
                             except (ValueError, IndexError):
                                 print("错误：请输入有效的文件编号")
