@@ -179,6 +179,8 @@ def chat_mode():
                             
                             if added:
                                 print(f"已添加文件：{', '.join(added)}")
+                                workspace_files = ws.list_files()  # 刷新文件列表
+                                break  # 添加成功后返回主菜单
                                 
                         elif choice == '2':
                             pass  # 前面已经显示过文件列表
