@@ -59,51 +59,48 @@ def chat_mode():
     workspace_files = ws.list_files()
     print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
     current_config = load_config()
-    print(f"{RED}{'-'*50}")
-    print(f"当前模式: {get_mode()}模式")
-    print(f"当前模型: {current_config.get('model', '未设置')}")
-    print(f"工作邮箱: {current_config.get('email', '未设置')}")
-    print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
-    # print(f"{'-'*50}{RESET}")
+    text = ''
     while True:
+        print(f"{RED}{'-'*50}")
+        print(f"当前模式: {get_mode()}模式")
+        print(f"当前模型: {current_config.get('model', '未设置')}")
+        print(f"工作邮箱: {current_config.get('email', '未设置')}")
+        print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
+        # print(f"{'-'*50}{RESET}")
         try:
             # 显示工作区文件和红色分隔线
             print(f"{RED}{'-'*50}")
             if workspace_files:
                 print(f"{RED}工作区文件：" + ", ".join([f for f in workspace_files]) + f"{RESET}")
-            text = session.prompt('> ')
+            text = session.prompt('> ') if not text else text
             if not text.strip():
                 print("请问您需要我做什么？")
                 continue
             
             if text == '/file':
-                # 进入文件管理子菜单
-                print(f"\n{RED}文件管理操作（当前工作区文件：{len(workspace_files)}个）{RESET}")
-                print("1. 扫描并添加文件 - 从workdir目录添加文件到工作区")
-                print("2. 列出工作区文件 - 显示已添加的文件及其类型")
-                print("3. 移除工作区文件 - 从工作区删除指定文件")
-                print(f"{RED}0. 返回主菜单{RESET}")
-                print(f"{RED}提示：支持的文件类型：PDF/DOCX/MD/TXT{RESET}")
-                
                 while True:
+                    # 进入文件管理子菜单
+                    print(f"\n{RED}文件管理操作（当前工作区文件：{len(workspace_files)}个）{RESET}")
+                    print("1. 扫描并添加文件 - 从workdir目录添加文件到工作区")
+                    print("2. 列出工作区文件 - 显示已添加的文件及其类型")
+                    print("3. 移除工作区文件 - 从工作区删除指定文件")
+                    print(f"{RED}0. 返回主菜单{RESET}")
+                    print(f"{RED}提示：支持的文件类型：PDF/DOCX/MD/TXT{RESET}")
                     try:
                         # 文件子菜单提示符
                         print(f"{RED}{'-'*50}{RESET}")
                         if workspace_files:
                             print(f"{RED}工作区文件：" + ", ".join([f for f in workspace_files]) + f"{RESET}")
                         choice = session.prompt('file> ')
-                        
+                        if not choice:
+                            print("请问您需要我做什么？")
+                            continue
                         if choice.startswith('/'):
                             text = choice  # 将命令传递回主循环
                             break
                         if choice == '0':
+                            text = ''
                             break
-                            
-                        # 显示当前工作区文件
-                        print("\n当前工作区文件：")
-                        for i, f in enumerate(workspace_files, 1):
-                            print(f"{i}. {f}")
-                        print()
                         
                         if choice == '1':
                             # 扫描workdir目录中的文件
@@ -180,7 +177,7 @@ def chat_mode():
                             if added:
                                 print(f"已添加文件：{', '.join(added)}")
                                 workspace_files = ws.list_files()  # 刷新文件列表
-                                break  # 添加成功后返回主菜单
+                                continue  # 添加成功后返回主菜单
                                 
                         elif choice == '2':
                             pass  # 前面已经显示过文件列表
@@ -212,6 +209,7 @@ def chat_mode():
                 parts = text.split(maxsplit=1)
                 if len(parts) < 2:
                     print("错误：命令格式为/model <ls|模型名称>")
+                    text = ''
                     continue
                 
                 if parts[1].lower() == 'ls':
@@ -219,6 +217,7 @@ def chat_mode():
                     current_config = load_config()
                     for model in current_config.get('supported_models', []):
                         print(f"- {model}")
+                    text = ''
                     continue
                 
                 new_model = parts[1]
@@ -235,6 +234,7 @@ def chat_mode():
                 if len(parts) < 2:
                     print(f"当前模式: {get_mode()}模式模式")
                     print("使用方法: /mode <candidate|hunter>")
+                    text = ''
                     continue
                 try:
                     set_mode(parts[1].lower())
@@ -243,6 +243,7 @@ def chat_mode():
                     current_config = load_config()
                 except ValueError as e:
                     print(f"错误: {str(e)}")
+                text = ''
 
             elif text == '/exit':
                 break
@@ -254,17 +255,9 @@ def chat_mode():
                       "/model <名称> - 切换AI模型（需要先查看支持列表）\n"
                       "/work      - 进入智能工作模式（简历优化/生成求职信等）\n"
                       "/mode <candidate|hunter> - 切换候选人/猎头模式\n"
-                      f"系统状态：\n"
-                      f"当前模型：{get_model()}\n"
-                      f"工作区文件：{len(workspace_files)}个\n"
                       f"输入 /exit 退出程序")
-                      
+                text = ''      
             elif text == '/work':
-                print(f"{RED}{'-'*50}")
-                print(f"当前模式: {get_mode()}模式")
-                print(f"当前模型: {get_model()}")
-                print(f"工作邮箱: {current_config.get('email', '未设置')}")
-                print(f"今日日期: {datetime.datetime.now().strftime('%Y-%m-%d')}")
                 commands = [
                     ("export2pdf", "需要md格式的内容", pdf_export.export_to_pdf),
                     ("send_email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
@@ -281,13 +274,14 @@ def chat_mode():
                         from utils.workspace import WorkspaceManager
                         ws = WorkspaceManager()
                         workspace_files = ws.list_files()
-                        print(f"{RED}{'-'*50}{RESET}")
-                        if workspace_files:
-                            print(f"{RED}工作区文件：" + " ".join([f for f in workspace_files]) + f"{RESET}")
+                        # print(f"{RED}{'-'*50}{RESET}")
+                        # if workspace_files:
+                        #     print(f"{RED}工作区文件：" + " ".join([f for f in workspace_files]) + f"{RESET}")
                             
                         cmd_input = session.prompt('work> ').strip()
                         if not cmd_input:
                             print("请问您需要我做什么？")
+                            continue
                         if cmd_input.startswith('/'):
                             text = cmd_input  # 将命令传递回主循环
                             break
