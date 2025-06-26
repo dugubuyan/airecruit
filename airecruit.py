@@ -188,15 +188,14 @@ def chat_mode():
                             try:
                                 indexes = [int(i)-1 for i in to_remove.split()]
                                 removed = []
-                                new_files = []
-                                for i, f in enumerate(workspace_files):
-                                    if i in indexes:
-                                        removed.append(f)
-                                    else:
-                                        new_files.append(f)
-                                workspace_files = new_files
+                                # 获取实际要移除的文件路径（去掉类型标记）
+                                all_files = [f['path'] for f in ws.config['workspace_files']]
+                                selected_paths = [all_files[i] for i in indexes]
+                                
                                 # 通过WorkspaceManager更新工作区文件
-                                ws.remove_files([workspace_files[i] for i in indexes])
+                                ws.remove_files(selected_paths)
+                                # 刷新工作区文件列表
+                                workspace_files = ws.list_files()
                                 ws.save_workspace()
                                 print(f"已移除文件：{', '.join(removed)}")
                             except (ValueError, IndexError):

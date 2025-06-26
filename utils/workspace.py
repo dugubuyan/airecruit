@@ -18,7 +18,15 @@ class WorkspaceManager:
             'path': path,
             'type': file_type,
         })
-        print("config:",self.config)
+        save_config(self.config)
+    
+    def remove_files(self, paths: list):
+        """从工作区移除指定路径的文件"""
+        # 保留不在移除列表中的文件
+        self.config['workspace_files'] = [
+            f for f in self.config['workspace_files']
+            if f['path'] not in paths
+        ]
         save_config(self.config)
     
     def get_resumes(self):
