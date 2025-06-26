@@ -300,14 +300,16 @@ def chat_mode():
                                 choice = response.choices[0]
                                 message = choice.message
                                 
-                                # 转换Pydantic模型为字典
-                                if hasattr(message, 'dict'):
+                                # 处理Pydantic模型兼容性（支持v1和v2）
+                                try:
+                                    # 优先使用Pydantic v2的model_dump方法
+                                    message_dict = message.model_dump()
+                                except AttributeError:
+                                    # 回退到v1的dict方法
                                     message_dict = message.dict()
-                                else:
-                                    message_dict = dict(message)
                                 
                                 ai_reply = message_dict.get('content', '')
-                                # 同时处理finish_reason字段
+                                # 直接获取finish_reason字段
                                 finish_reason = getattr(choice, 'finish_reason', None)
                                 print(f"\n助理：\n{ai_reply}\n")
                                 messages.append({"role": "assistant", "content": ai_reply})
