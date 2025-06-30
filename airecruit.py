@@ -19,7 +19,7 @@ from utils.file_utils import (
     convert_pdf_to_md,
     convert_docx_to_md,
 )
-from commands import (
+from capacity import (
     pdf_export,
     send_email
 )
