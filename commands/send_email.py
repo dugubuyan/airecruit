@@ -32,7 +32,7 @@ def send_email(recipient, subject, body, has_attachment, template=None):
 
     # 3. 处理附件
     attachments = get_attachment() if has_attachment == 'true' else {}
-    print("attachments:",attachments)
+    # print("attachments:",attachments)
     # 邮件模版
     if template is None:
         template = config.get('default_email_template', """
