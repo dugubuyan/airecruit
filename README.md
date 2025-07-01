@@ -20,7 +20,7 @@ An AI-powered recruitment assistant tool that provides resume optimization, job 
 
 ### 📦 Installation
 ```bash
-git clone [your-repo-url]
+git clone https://github.com/your-username/airecruit.git
 cd airecruit
 pip install -r requirements.txt
 ```
@@ -29,14 +29,15 @@ pip install -r requirements.txt
 #### CLI Mode
 ```bash
 # Example commands
-python airecruit.py optimize resume.pdf
-python airecruit.py cover-letter --template=tech.md
+# 进入交互式命令行模式
+python airecruit.py
+# 使用/work命令开始工作流程
 ```
 
 #### Web Mode
 ```bash
-python airecruit.py
-# Access http://localhost:5000
+python airecruit.py --browser
+# 访问 http://localhost:5001
 ```
 
 ### ⚙ Configuration
@@ -58,7 +59,7 @@ Edit `.config.json` to set:
 智能求职辅助工具，提供简历优化、职位匹配和自动化申请功能。支持命令行和网页双界面。
 
 ### 🚀 功能列表
-- 简历优化（命令行: `optimize`, 网页: `/api/optimize`）
+- 简历优化（命令行: `/work`, 网页: `/api/optimize`）(开发中)
 - 简历摘要生成（命令行: `summarize`）
 - 求职信生成（命令行: `cover-letter`）
 - 职位过滤器生成（命令行: `filters`）
