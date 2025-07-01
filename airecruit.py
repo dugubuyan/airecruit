@@ -56,13 +56,12 @@ def chat_mode():
     )
     from utils.workspace import WorkspaceManager
     from commands import (
-        handle_file_command,
-        handle_model_command,
-        handle_work_command,
-        handle_mode_command,
         handle_exit_command,
+        handle_file_command,
         handle_help_command,
-        handle_file_command
+        handle_mode_command,
+        handle_model_command,
+        handle_work_command
     )
     ws = WorkspaceManager()
     workspace_files = ws.list_files()
