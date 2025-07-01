@@ -121,6 +121,7 @@ if __name__ == "__main__":
         set_model(args.model)
         print(f"模型已设置为：{args.model}")
     elif args.browser:
+        from browser.server import app
         import webbrowser
         webbrowser.open('http://localhost:5001')
         app.run(host='0.0.0.0', port=5001, debug=True)
