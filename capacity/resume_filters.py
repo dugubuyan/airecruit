@@ -1,4 +1,3 @@
-import mysql.connector
 from typing import List, Dict
 
 def resume_filtering(db_url: str, db_user: str, db_password: str, sql: str) -> List[Dict]:
@@ -26,6 +25,7 @@ def resume_filtering(db_url: str, db_user: str, db_password: str, sql: str) -> L
             conn.row_factory = sqlite3.Row  # 支持字典格式返回
             
         elif parsed.scheme == 'mysql':
+            import mysql.connector
             # MySQL连接
             conn = mysql.connector.connect(
                 host=parsed.hostname,
