@@ -45,7 +45,7 @@ def send_email(recipient, subject, body, has_attachment, template=None):
     html_body = template.format(body=body)
 
     try:
-        email = EmailSender(host=smtp_server, port=smtp_port, username="longhui@chainfeeds.xyz", password="omenmvywtbffjbev")
+        email = EmailSender(host=smtp_server, port=smtp_port, username=sender, password=password)
         email.send(
             subject,sender,receivers=[recipient],html=html_body,attachments=attachments
             )
