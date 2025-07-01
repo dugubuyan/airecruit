@@ -74,14 +74,6 @@ def export_md_to_pdf(md_content: str, output_path: str | Path):
         raise RuntimeError(f"PDF生成失败: {str(e)}") from e
 
 
-from prompt_toolkit import PromptSession
-
-def confirm_action(prompt: str) -> bool:
-    """确认操作"""
-    session = PromptSession()
-    response = session.prompt(f"{prompt} [y/N] ").strip().lower()
-    return response in ('y', 'yes')
-
 def open_pdf_in_browser(pdf_path):
     """
     在默认浏览器中打开本地 PDF 文件

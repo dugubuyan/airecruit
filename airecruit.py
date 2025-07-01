@@ -99,15 +99,13 @@ def chat_mode():
             elif text == '/exit':
                 if handle_exit_command():
                     break
-                text = ''
                 
             elif text == '/help':
                 handle_help_command()
                 text = ''
                 
             elif text == '/work':
-                handle_work_command(session, ws, current_config)
-                text = ''
+                text = handle_work_command(session, ws, current_config)
             else:
                 # 非命令输入自动进入工作模式
                 text = '/work'
