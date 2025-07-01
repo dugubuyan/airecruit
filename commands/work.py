@@ -1,8 +1,11 @@
 import json
+import re
 from llm import get_system_prompt
 from capacity import pdf_export, send_email
 from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
+from litellm import completion
+from config import get_model
 
 def handle_work_command(session, ws, current_config):
     """处理工作模式命令"""
