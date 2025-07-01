@@ -10,12 +10,12 @@
 An AI-powered recruitment assistant tool that provides resume optimization, job matching, and automated application features. Supports both CLI and web interface.
 
 ### 🚀 Features
-- Resume Optimization (CLI: `optimize`, Web: `/api/optimize`)
-- Resume Summarization (CLI: `summarize`)
-- Cover Letter Generation (CLI: `cover-letter`)
-- JD-based Filter Generation (CLI: `filters`)
-- Position Recommendation (CLI: `recommend`)
-- Contact Extraction & Email (CLI: `contact`)
+- Resume Optimization
+- Resume Summarization
+- Cover Letter Generation & Send Email
+- JD-based Filter Generation 
+- Position Recommendation
+- Contact Extraction & Send Email 
 - Web-based Management Interface
 
 ### 📦 Installation
@@ -29,9 +29,10 @@ pip install -r requirements.txt
 #### CLI Mode
 ```bash
 # Example commands
-# 进入交互式命令行模式
+# chat mode
 python airecruit.py
-# 使用/work命令开始工作流程
+# use /work to begin
+>/work
 ```
 
 #### Web Mode
@@ -60,11 +61,11 @@ Edit `.config.json` to set:
 
 ### 🚀 功能列表
 - 简历优化（命令行: `/work`, 网页: `/api/optimize`）(开发中)
-- 简历摘要生成（命令行: `summarize`）
-- 求职信生成（命令行: `cover-letter`）
-- 职位过滤器生成（命令行: `filters`）
-- 职位推荐（命令行: `recommend`）
-- 联系方式提取（命令行: `contact`）
+- 简历摘要生成
+- 求职信生成
+- 职位过滤器生成
+- 职位推荐
+- 联系方式提取
 - 网页管理界面
 
 ### 📦 安装步骤
@@ -78,8 +79,9 @@ pip install -r requirements.txt
 #### 命令行模式
 ```bash
 # 示例命令
-python airecruit.py optimize resume.pdf
-python airecruit.py cover-letter --template=tech.md
+python airecruit.py
+# 使用/work命令开始工作流程
+>/work
 ```
 
 #### 网页模式
