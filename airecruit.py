@@ -61,7 +61,8 @@ def chat_mode():
         handle_work_command,
         handle_mode_command,
         handle_exit_command,
-        handle_help_command
+        handle_help_command,
+        handle_file_command
     )
     ws = WorkspaceManager()
     workspace_files = ws.list_files()
@@ -86,148 +87,7 @@ def chat_mode():
                 continue
             
             if text == '/file':
-                while True:
-                    # 进入文件管理子菜单
-                    print(f"\n{RED}文件管理操作（当前工作区文件：{len(workspace_files)}个）{RESET}")
-                    print("1. 扫描并添加文件 - 从workdir目录添加文件到工作区")
-                    print("2. 列出工作区文件 - 显示已添加的文件及其类型")
-                    print("3. 移除工作区文件 - 从工作区删除指定文件")
-                    print(f"{RED}0. 返回主菜单{RESET}")
-                    print(f"{RED}提示：支持的文件类型：PDF/DOCX/MD/TXT{RESET}")
-                    try:
-                        # 文件子菜单提示符
-                        print(f"{RED}{'-'*50}{RESET}")
-                        if workspace_files:
-                            print(f"{RED}工作区文件：" + ", ".join([f for f in workspace_files]) + f"{RESET}")
-                        choice = session.prompt('file> ')
-                        if not choice:
-                            print("请问您需要我做什么？")
-                            continue
-                        if choice.startswith('/'):
-                            text = choice  # 将命令传递回主循环
-                            break
-                        if choice == '0':
-                            text = ''
-                            break
-                        
-                        if choice == '1':
-                            # 扫描workdir目录中的文件
-                            work_dir = Path("workdir")
-                            work_dir.mkdir(exist_ok=True)  # 确保目录存在
-                            
-                            # 获取目录中支持的文件类型
-                            file_list = list(work_dir.glob("*.pdf")) + list(work_dir.glob("*.docx")) + \
-                                      list(work_dir.glob("*.md")) + list(work_dir.glob("*.txt"))
-                                      
-                            if not file_list:
-                                print("workdir目录中没有可用的文件（支持pdf/docx/md/txt格式）")
-                                continue
-                                
-                            print("\nworkdir目录中的可用文件：")
-                            for i, f in enumerate(file_list, 1):
-                                print(f"{i}. {f.name}")
-                                
-                            file_nums = session.prompt("请输入要添加的文件编号（多个用空格分隔）: ")
-                            if not file_nums.strip():
-                                print("操作已取消")
-                                continue
-                                
-                            added = []
-                            try:
-                                indexes = [int(n)-1 for n in file_nums.split()]
-                                selected_files = [file_list[i] for i in indexes]
-                            except (ValueError, IndexError):
-                                print("错误：请输入有效的文件编号")
-                                continue
-                                
-                            added = []
-                            for file_path in selected_files:
-                                if not file_path.exists():
-                                    print(f"文件不存在：{f}")
-                                    continue
-                                
-                                # 转换并添加文件
-                                if file_path.suffix.lower() in ('.pdf', '.docx'):
-                                    md_path = file_path.with_suffix('.md')
-                                    try:
-                                        if file_path.suffix.lower() == '.pdf':
-                                            convert_pdf_to_md(str(file_path), str(md_path))
-                                        else:
-                                            convert_docx_to_md(str(file_path), str(md_path))
-                                        workspace_files.append(str(md_path.resolve()))
-                                        added.append(str(md_path))
-                                    except Exception as e:
-                                        print(f"转换文件 {f} 失败：{str(e)}")
-                                elif file_path.suffix.lower() in ('.txt', '.md'):
-                                    # 读取文件内容
-                                    # with open(file_path, 'r', encoding='utf-8') as f:
-                                    #     content = f.read()
-                                    
-                                    # 让用户分类文件类型
-                                    file_type = session.prompt(
-                                        f"请为文件 {file_path.name} 选择类型：\n"
-                                        "1. 简历\n2. 职位描述(JD)\n请输入编号: "
-                                    ).strip()
-                                    
-                                    file_type = 'resume' if file_type == '1' else 'jd'
-                                    
-                                    # 添加到工作区
-                                    ws.add_file(
-                                        path=str(file_path.resolve()),
-                                        file_type=file_type,
-                                    )
-                                    added.append(file_path.name)
-                                    # 刷新工作区文件列表（带类型标记）
-                                    workspace_files = ws.list_files()
-                                else:
-                                    print(f"跳过不支持的文件类型：{file_path.suffix}")
-                            
-                            if added:
-                                print(f"已添加文件：{', '.join(added)}")
-                                workspace_files = ws.list_files()  # 刷新文件列表
-                                continue  # 添加成功后返回主菜单
-                                
-                        elif choice == '2':
-                            pass  # 前面已经显示过文件列表
-                            
-                        elif choice == '3':
-                            # 获取原始文件路径列表
-                            all_files = [f['path'] for f in ws.config['workspace_files']]
-                            if not all_files:
-                                print("工作区中没有文件可移除")
-                                continue
-                                
-                            print("\n当前工作区文件：")
-                            for i, path in enumerate(all_files, 1):
-                                print(f"{i}. {Path(path).name}")
-                                
-                            to_remove = session.prompt("请输入要移除的文件编号（多个用空格分隔）: ")
-                            if not to_remove.strip():
-                                print("操作已取消")
-                                continue
-                                
-                            try:
-                                indexes = [int(i) for i in to_remove.split()]
-                                # 验证编号有效性
-                                if any(i < 1 or i > len(all_files) for i in indexes):
-                                    raise ValueError("编号超出范围")
-                                    
-                                selected_paths = [all_files[i-1] for i in indexes]
-                                removed_files = [Path(p).name for p in selected_paths]
-                                
-                                # 通过WorkspaceManager更新工作区文件
-                                ws.remove_files(selected_paths)
-                                # 刷新工作区文件列表
-                                workspace_files = ws.list_files()
-                                print(f"\n✅ 已移除文件：{', '.join(removed_files)}")
-                            except (ValueError, IndexError):
-                                print("错误：请输入有效的文件编号")
-                                
-                        else:
-                            print("错误：无效选项，请输入 0-3 的数字")
-                        continue
-                    except (KeyboardInterrupt, EOFError):
-                        break
+                text = handle_file_command(session, ws)
                 
             elif text.startswith('/model'):
                 handle_model_command(text, session)
