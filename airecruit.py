@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 from litellm import completion
 from diff_match_patch import diff_match_patch
 import shlex
-from flask import Flask, request, jsonify, render_template
 from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
@@ -110,56 +109,6 @@ def chat_mode():
             print(f"出错：{e}")
 
 
-# Local web server with Flask
-app = Flask(__name__)
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    return render_template("index.html")
-
-@app.route("/api/add_file", methods=["POST"])
-def api_add_file():
-    from utils.workspace import WorkspaceManager
-    ws = WorkspaceManager()
-    file_path = request.json.get("path")
-    if not file_path:
-        return jsonify({"error": "Missing file path"}), 400
-    ws.add_file(file_path, "auto", "")
-    return jsonify({"status": "added", "path": file_path})
-
-@app.route("/api/files", methods=["GET"])
-def api_files():
-    from utils.workspace import WorkspaceManager
-    ws = WorkspaceManager()
-    return jsonify(ws.list_files())
-
-@app.route("/api/optimize", methods=["POST"])
-def api_optimize():
-    from utils.workspace import WorkspaceManager
-    ws = WorkspaceManager()
-    return jsonify({"optimized": 'success'})
-    # try:
-    #     # 从工作区获取最新简历和JD
-    #     resumes = ws.get_resumes()
-    #     jds = ws.get_jds()
-        
-    #     if not resumes or not jds:
-    #         return jsonify({"error": "需要至少一份简历和职位描述"}), 400
-            
-    #     # 使用第一个找到的简历和JD
-    #     resume_path = resumes[0]
-    #     jd_path = jds[0]
-
-    #     with open(resume_path, 'r', encoding='utf-8') as f:
-    #         resume_content = f.read()
-    #     with open(jd_path, 'r', encoding='utf-8') as f:
-    #         jd_content = f.read()
-        
-    #     result = optimize_resume.optimize_resume(jd_content, resume_content)
-    #     return jsonify({"optimized": result})
-        
-    # except Exception as e:
-    #     return jsonify({"error": str(e)}), 500
 
 # CLI
 if __name__ == "__main__":
@@ -173,7 +122,7 @@ if __name__ == "__main__":
         print(f"模型已设置为：{args.model}")
     elif args.browser:
         import webbrowser
-        app.run(host='0.0.0.0', port=5001, debug=True)
         webbrowser.open('http://localhost:5001')
+        app.run(host='0.0.0.0', port=5001, debug=True)
     else:
         chat_mode()
