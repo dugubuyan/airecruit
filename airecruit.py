@@ -55,6 +55,14 @@ def chat_mode():
         })
     )
     from utils.workspace import WorkspaceManager
+    from commands import (
+        handle_file_command,
+        handle_model_command,
+        handle_work_command,
+        handle_mode_command,
+        handle_exit_command,
+        handle_help_command
+    )
     ws = WorkspaceManager()
     workspace_files = ws.list_files()
     print("欢迎进入AI招聘助手工作模式（输入/help查看帮助）")
@@ -222,155 +230,25 @@ def chat_mode():
                         break
                 
             elif text.startswith('/model'):
-                parts = text.split(maxsplit=1)
-                if len(parts) < 2:
-                    print("错误：命令格式为/model <ls|模型名称>")
-                    text = ''
-                    continue
-                
-                if parts[1].lower() == 'ls':
-                    print("支持的模型列表：")
-                    current_config = load_config()
-                    for model in current_config.get('supported_models', []):
-                        print(f"- {model}")
-                    text = ''
-                    continue
-                
-                new_model = parts[1]
-                try:
-                    if new_model not in load_config().get('supported_models', []):
-                        raise ValueError(f"不支持该模型，请使用/model ls查看支持列表")
-                    set_model(new_model)
-                    print(f"模型已设置为：{new_model}")
-                except ValueError as e:
-                    print(f"错误：{str(e)}")
+                handle_model_command(text, session)
+                text = ''
                 
             elif text.startswith('/mode'):
-                parts = text.split(maxsplit=1)
-                if len(parts) < 2:
-                    print(f"当前模式: {get_mode()}模式模式")
-                    print("使用方法: /mode <candidate|hunter>")
-                    text = ''
-                    continue
-                try:
-                    set_mode(parts[1].lower())
-                    print(f"工作模式已设置为: {parts[1]}模式")
-                    # 刷新配置显示
-                    current_config = load_config()
-                except ValueError as e:
-                    print(f"错误: {str(e)}")
+                handle_mode_command(text, session)
                 text = ''
-
+                
             elif text == '/exit':
-                break
+                if handle_exit_command():
+                    break
+                text = ''
                 
             elif text == '/help':
-                print(f"可用命令列表：\n"
-                      "/file       - 文件管理（添加/查看/删除工作区文件）\n"
-                      "/model ls   - 查看所有支持的AI模型列表\n" 
-                      "/model <名称> - 切换AI模型（需要先查看支持列表）\n"
-                      "/work      - 进入智能工作模式（简历优化/生成求职信等）\n"
-                      "/mode <candidate|hunter> - 切换候选人/猎头模式\n"
-                      f"输入 /exit 退出程序")
-                text = ''      
+                handle_help_command()
+                text = ''
+                
             elif text == '/work':
-                commands = [
-                    ("export2pdf", "需要md格式的内容", pdf_export.export_to_pdf),
-                    ("send_email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
-                ]
-                # 构造动态系统提示
-                # 获取最新工作区状态
-                resumes = ws.get_resumes()
-                jds = ws.get_jds()
-                system_msg = get_system_prompt(current_config.get('mode', 'candidate'))(resumes, jds)
-                while True:
-                    try:
-                        # 工作命令子菜单提示符
-                        # 获取最新工作区文件
-                        from utils.workspace import WorkspaceManager
-                        ws = WorkspaceManager()
-                        workspace_files = ws.list_files()
-                        # print(f"{RED}{'-'*50}{RESET}")
-                        # if workspace_files:
-                        #     print(f"{RED}工作区文件：" + " ".join([f for f in workspace_files]) + f"{RESET}")
-                            
-                        cmd_input = session.prompt('work> ').strip()
-                        if not cmd_input:
-                            print("请问您需要我做什么？")
-                            continue
-                        if cmd_input.startswith('/'):
-                            text = cmd_input  # 将命令传递回主循环
-                            break
-                            
-                        # 处理自然语言输入
-                        messages = [{"role": "system", "content": system_msg}]
-                        while True:
-                            try:
-                                messages.append({"role": "user", "content": cmd_input})
-                                response = completion(
-                                    model=get_model(),
-                                    messages=messages,
-                                    temperature=0.3
-                                )
-                                # print("mesages++++++++++222222222:",messages)
-                                # 统一处理不同LLM响应格式为字典
-                                choice = response.choices[0]
-                                message = choice.message
-                                
-                                # 处理Pydantic模型兼容性（支持v1和v2）
-                                # try:
-                                #     # 优先使用Pydantic v2的model_dump方法
-                                #     message_dict = message.model_dump(warnings=False)
-                                # except AttributeError:
-                                #     # 回退到v1的dict方法
-                                #     print("使用 dict 方法")
-                                #     message_dict = message.dict()
-                                ai_reply = message['content']
-                                # 直接获取finish_reason字段
-                                # finish_reason = getattr(choice, 'finish_reason', None)
-                                print(f"\n助理：\n{ai_reply}\n")
-                                messages.append({"role": "assistant", "content": ai_reply})
-                                # 解析操作块
-                                import re
-                                operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
-                                if operation_match:
-                                    operation_content = operation_match.group(1).strip()
-                                    # print("operation_content::::", operation_content)
-                                    # 解析JSON参数
-                                    operation_json = json.loads(operation_content)
-                                    operation_type = operation_json['action']
-                                    print(f"操作类型：{operation_type}")
-                                    params = {k: v for k, v in operation_json.items() if k != 'action'}
-                                        
-                                    # 查找匹配的命令
-                                    cmd_func = next((c[2] for c in commands if c[0].find(operation_type) != -1), None)
-                                    if cmd_func:
-                                        try:
-                                            result = cmd_func(**params)
-                                            print(f"\n✅ 操作成功\n{result}\n")
-                                            break
-                                        except Exception as e:
-                                            print(f"\n❌ 操作失败：{str(e)}\n")
-                                            break
-                                    else:
-                                        print(f"未知操作类型：{operation_type}")
-                                        break
-                                    
-                                # 继续对话
-                                next_input = session.prompt("请输入后续内容或参数（输入'取消'退出）： ")
-                                if next_input.lower() in ('取消', 'exit', 'quit'):
-                                    print("操作已取消")
-                                    break
-                                cmd_input = next_input
-                                    
-                            except Exception as e:
-                                print(f"发生错误：{str(e)}")
-                                break
-                            
-                    except (KeyboardInterrupt, EOFError):
-                        break
-                    except Exception as e:
-                        print(f"执行出错：{str(e)}")
+                handle_work_command(session, ws, current_config)
+                text = ''
             else:
                 # 非命令输入自动进入工作模式
                 text = '/work'
