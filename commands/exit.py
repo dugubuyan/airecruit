@@ -1,4 +1,4 @@
-from core.utils import confirm_action
+from utils.file_utils import confirm_action
 
 def handle_exit_command():
     """处理退出命令"""
