@@ -1,7 +1,7 @@
 import json
 import re
 from llm import get_system_prompt
-from capacity import pdf_export, send_email
+from capacity import export_to_pdf, send_email
 from utils.workspace import WorkspaceManager
 from prompt_toolkit import PromptSession
 from litellm import completion
@@ -10,8 +10,8 @@ from config import get_model
 def handle_work_command(session, ws, current_config):
     """处理工作模式命令"""
     commands = [
-        ("export2pdf", "需要md格式的内容", pdf_export.export_to_pdf),
-        ("send_email", "需要收件人地址（自动从JD提取或手动输入）", send_email.send_email)
+        ("export2pdf", "需要md格式的内容", export_to_pdf),
+        ("send_email", "需要收件人地址（自动从JD提取或手动输入）", send_email)
     ]
     
     resumes = ws.get_resumes()

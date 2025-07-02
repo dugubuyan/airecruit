@@ -107,6 +107,7 @@ def chat_mode():
             break
         except Exception as e:
             print(f"出错：{e}")
+            break
 
 
 
