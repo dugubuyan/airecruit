@@ -5,7 +5,7 @@ from urllib.parse import quote
 from weasyprint import HTML
 from markdown import markdown
 
-# 文件格式转换功能
+# 文件格式转换功能,只需要extract text即可，因为要给LLM处理
 def convert_pdf_to_md(pdf_path, output_path):
     """转换PDF文件到Markdown格式"""
     from pdfminer.high_level import extract_text
