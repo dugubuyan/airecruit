@@ -9,12 +9,17 @@ from .send_email import send_email, get_attachment, test_work
 from .summarize_resume import summarize_resume
 
 __all__ = [
-    'summarize_resume',
-    'generate_cover_letter',
-    'resume_filtering',
-    'generate_recommendation',
-    'extract_contact_and_send',
+    'batch_email_candidate',
+    'bd_email_to_hr',
     'export_to_pdf',
-    'send_email'
+    'generate_recommendation',
+    'get_attachment',
+    'import_all_resume_2_db',
+    'import_resume_2_db',
+    'resume_filtering',
+    'search_resume_by_jd',
+    'send_email',
+    'summarize_resume',
+    'test_work'
 ]
 
