@@ -6,7 +6,6 @@ from .recommendation import generate_recommendation
 from .resume_filters import resume_filtering
 from .search_resume_by_jd import search_resume_by_jd
 from .send_email import send_email, get_attachment, test_work
-from .summarize_resume import summarize_resume
 
 __all__ = [
     'batch_email_candidate',
@@ -19,7 +18,6 @@ __all__ = [
     'resume_filtering',
     'search_resume_by_jd',
     'send_email',
-    'summarize_resume',
     'test_work'
 ]
 
