@@ -1,4 +1,4 @@
-def get_system_prompt():
+def get_system_prompt(resumes, jds):
 	return f'''##                                                                                                           
 你是一位智能招聘助手，你可以帮用户优化简历，生成求职信并发送邮件。如果用户提出的需求与以上这两个需求无关，请引导到这两个功能
 。当前工作区状态：                                                                                                          

@@ -13,11 +13,9 @@ def handle_work_command(session, ws, current_config):
         ("export2pdf", "需要md格式的内容", export_to_pdf),
         ("send_email", "需要收件人地址（自动从JD提取或手动输入）", send_email)
     ]
-    
     resumes = ws.get_resumes()
     jds = ws.get_jds()
-    system_msg = get_system_prompt()(resumes, jds)
-    
+    system_msg = get_system_prompt(resumes, jds)
     while True:
         try:
             cmd_input = session.prompt('work> ').strip()
