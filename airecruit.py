@@ -31,7 +31,7 @@ def chat_mode():
     from prompt_toolkit.completion import WordCompleter
     from prompt_toolkit.styles import Style
     command_completer = WordCompleter([
-        '/file', '/model', '/work', '/mode', '/exit', '/help'
+        '/file', '/model', '/work', '/exit', '/help'
     ], ignore_case=True)
     
     # 定义颜色常量
@@ -51,7 +51,6 @@ def chat_mode():
         handle_exit_command,
         handle_file_command,
         handle_help_command,
-        handle_mode_command,
         handle_model_command,
         handle_work_command
     )
