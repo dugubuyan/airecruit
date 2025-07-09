@@ -23,8 +23,8 @@
             <div class="mb-3">
                 <label class="form-label">AI模型</label>
                 <select id="model-select" class="form-select" onchange="updateConfig('model', this.value)">
-                    <option value="gpt-3.5-turbo-0125" {% if config.get('model', '').startswith('gpt-3.5-turbo') %}selected{% endif %}>GPT-3.5</option>
-                    <option value="gpt-4-0125" {% if config.get('model', '').startswith('gpt-4') %}selected{% endif %}>GPT-4</option>
+                    <option value="gpt-3.5-turbo" {% if config.get('model', '').startswith('gpt-3.5-turbo') %}selected{% endif %}>GPT-3.5</option>
+                    <option value="gpt-4" {% if config.get('model', '').startswith('gpt-4') %}selected{% endif %}>GPT-4</option>
                 </select>
             </div>
             <div class="mb-3">
