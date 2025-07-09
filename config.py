@@ -27,7 +27,6 @@ def load_config():
             'cohere/command-nightly',
             'gemini/gemini-2.0-flash'
         ],
-        'mode': 'candidate'
     }
     
     # 合并默认配置（保留现有配置字段）
@@ -58,18 +57,6 @@ def set_model(model):
     config["model"] = model
     save_config(config)
 
-def get_mode():
-    """获取当前模式"""
-    return "候选人" if 'candidate' == load_config().get('mode', 'candidate') else '猎头'
-
-def set_mode(mode):
-    """设置工作模式"""
-    valid_modes = ['candidate', 'hunter']
-    if mode not in valid_modes:
-        raise ValueError(f"无效模式，可选: {', '.join(valid_modes)}")
-    config = load_config()
-    config['mode'] = mode
-    save_config(config)
 
 def get_smtp_config():
     """获取SMTP服务器配置"""

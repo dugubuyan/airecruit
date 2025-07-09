@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from utils.workspace import WorkspaceManager
-from config import load_config, get_mode
+from config import load_config
 from capacity.optimize_resume import optimize_resume
 from capacity.generate_recommendation import generate_recommendation
 from capacity.send_email import send_email
