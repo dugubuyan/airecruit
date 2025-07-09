@@ -16,7 +16,7 @@ def handle_work_command(session, ws, current_config):
     
     resumes = ws.get_resumes()
     jds = ws.get_jds()
-    system_msg = get_system_prompt(current_config.get('mode', 'candidate'))(resumes, jds)
+    system_msg = get_system_prompt()(resumes, jds)
     
     while True:
         try:
