@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from utils.workspace import WorkspaceManager
-from config import load_config
+from config import load_config, set_model, set_smtp_config
 from capacity.send_email import send_email
 import datetime
 
@@ -38,12 +38,11 @@ def api_update_config():
             set_model(value)
         elif key == "email":
             # 保持与命令行模式一致的SMTP配置处理
-            current_smtp = load_config().get("smtp_config", {})
             set_smtp_config(
                 sender_email=value,
-                sender_password=current_smtp.get("sender_password", ""),
-                smtp_server=current_smtp.get("smtp_server", ""),
-                smtp_port=current_smtp.get("smtp_port", 587)
+                sender_password=request.json.get("sender_password", ""),
+                smtp_server=request.json.get("smtp_server", "smtp.example.com"),
+                smtp_port=int(request.json.get("smtp_port", 587))
             )
         return jsonify({"status": "updated", key: value})
     except Exception as e:

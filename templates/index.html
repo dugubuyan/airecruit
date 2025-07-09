@@ -31,7 +31,22 @@
                 <label class="form-label">工作邮箱</label>
                 <input type="email" id="email" class="form-control" 
                        value="{{ config.get('smtp_config', {}).get('sender_email', '') }}"
-                       onblur="updateConfig('email', this.value)">
+                       onblur="updateSmtpConfig()">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">SMTP密码</label>
+                <input type="password" id="smtp_password" class="form-control" 
+                       value="{{ config.get('smtp_config', {}).get('sender_password', '') }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">SMTP服务器</label>
+                <input type="text" id="smtp_server" class="form-control" 
+                       value="{{ config.get('smtp_config', {}).get('smtp_server', 'smtp.example.com') }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">SMTP端口</label>
+                <input type="number" id="smtp_port" class="form-control" 
+                       value="{{ config.get('smtp_config', {}).get('smtp_port', 587) }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">添加文件</label>
@@ -98,10 +113,17 @@
             });
         }
         
-        function updateConfig(key, value) {
+        function updateSmtpConfig() {
+            const config = {
+                email: $('#email').val(),
+                sender_password: $('#smtp_password').val(),
+                smtp_server: $('#smtp_server').val(),
+                smtp_port: $('#smtp_port').val()
+            };
+            
             $.post('/api/update_config', { 
-                key: key,
-                value: value 
+                key: 'email',
+                value: config
             }).fail(function(xhr) {
                 alert('保存配置失败: ' + xhr.responseJSON.error);
             });
