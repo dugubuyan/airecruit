@@ -22,14 +22,16 @@
             <h4>工作区配置</h4>
             <div class="mb-3">
                 <label class="form-label">AI模型</label>
-                <select id="model-select" class="form-select">
-                    <option value="gpt-3.5-turbo">GPT-3.5</option>
-                    <option value="gpt-4">GPT-4</option>
+                <select id="model-select" class="form-select" onchange="updateConfig('model', this.value)">
+                    <option value="gpt-3.5-turbo" {% if config.get('model') == 'gpt-3.5-turbo' %}selected{% endif %}>GPT-3.5</option>
+                    <option value="gpt-4" {% if config.get('model') == 'gpt-4' %}selected{% endif %}>GPT-4</option>
                 </select>
             </div>
             <div class="mb-3">
                 <label class="form-label">工作邮箱</label>
-                <input type="email" id="email" class="form-control" value="{{ config.get('email', '') }}">
+                <input type="email" id="email" class="form-control" 
+                       value="{{ config.get('smtp_config', {}).get('sender_email', '') }}"
+                       onblur="updateConfig('email', this.value)">
             </div>
             <div class="mb-3">
                 <label class="form-label">添加文件</label>
@@ -93,6 +95,15 @@
         function refreshFiles() {
             $.get('/api/files', function(data) {
                 // 更新文件列表...
+            });
+        }
+        
+        function updateConfig(key, value) {
+            $.post('/api/update_config', { 
+                key: key,
+                value: value 
+            }).fail(function(xhr) {
+                alert('保存配置失败: ' + xhr.responseJSON.error);
             });
         }
     </script>
