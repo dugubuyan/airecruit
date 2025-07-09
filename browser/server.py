@@ -4,11 +4,11 @@ from config import load_config
 from capacity.send_email import send_email
 import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates')
 
 @app.route("/")
 def index():
-    return render_template("../templates/index.html")
+    return render_template("index.html")
 
 @app.route("/api/add_file", methods=["POST"])
 def api_add_file():
