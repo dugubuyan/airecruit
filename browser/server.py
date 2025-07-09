@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from utils.workspace import WorkspaceManager
 from config import load_config
-from capacity.optimize_resume import optimize_resume
-from capacity.generate_recommendation import generate_recommendation
 from capacity.send_email import send_email
 import datetime
 
@@ -10,7 +8,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("../templates/index.html")
 
 @app.route("/api/add_file", methods=["POST"])
 def api_add_file():
