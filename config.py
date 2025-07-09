@@ -21,11 +21,10 @@ def load_config():
         'smtp_port': 465,
         'workspace_files': [],
         'supported_models': [
-            'ollama/mistral:7b-instruct',
-            'openai/gpt-4',
-            'anthropic/claude-2', 
-            'cohere/command-nightly',
-            'gemini/gemini-2.0-flash'
+            'gpt-3.5-turbo',
+            'gpt-4',
+            'claude-3-opus',
+            'gemini-pro'
         ],
     }
     
@@ -33,6 +32,8 @@ def load_config():
     for key in default_config:
         if key not in config:
             config[key] = default_config[key]
+    # 确保supported_models始终使用最新配置
+    config['supported_models'] = default_config['supported_models']
     
     # 确保model字段是字符串类型
     if isinstance(config.get('model'), dict):
