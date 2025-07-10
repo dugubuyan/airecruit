@@ -53,4 +53,13 @@ def api_files():
     ws = WorkspaceManager()
     return jsonify(ws.list_files())
 
+@app.route("/api/remove_file", methods=["POST"])
+def api_remove_file():
+    ws = WorkspaceManager()
+    file_path = request.json.get("path")
+    if not file_path:
+        return jsonify({"error": "Missing file path"}), 400
+    ws.remove_files([file_path])
+    return jsonify({"status": "removed", "path": file_path})
+
 
