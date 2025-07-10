@@ -30,24 +30,12 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">工作邮箱</label>
-                <input type="email" id="email" class="form-control" 
-                       value="{{ config.get('smtp_config', {}).get('sender_email', '') }}"
-                       onblur="updateSmtpConfig()">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">SMTP密码</label>
-                <input type="password" id="smtp_password" class="form-control" 
-                       value="{{ config.get('smtp_config', {}).get('sender_password', '') }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">SMTP服务器</label>
-                <input type="text" id="smtp_server" class="form-control" 
-                       value="{{ config.get('smtp_config', {}).get('smtp_server', 'smtp.example.com') }}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">SMTP端口</label>
-                <input type="number" id="smtp_port" class="form-control" 
-                       value="{{ config.get('smtp_config', {}).get('smtp_port', 587) }}">
+                <div class="input-group">
+                    <input type="email" id="email" class="form-control" 
+                           value="{{ config.get('smtp_config', {}).get('sender_email', '') }}"
+                           readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="showEmailConfig()">设置</button>
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">添加文件</label>
@@ -114,9 +102,13 @@
             });
         }
         
-        function updateSmtpConfig() {
+        function showEmailConfig() {
+            $('#emailConfigModal').modal('show');
+        }
+
+        function saveSmtpConfig() {
             const config = {
-                email: $('#email').val(),
+                sender_email: $('#email').val(),
                 sender_password: $('#smtp_password').val(),
                 smtp_server: $('#smtp_server').val(),
                 smtp_port: $('#smtp_port').val()
@@ -125,13 +117,48 @@
             $.post('/api/update_config', { 
                 key: 'email',
                 value: config
-            }).fail(function(xhr) {
+            }).then(() => {
+                $('#emailConfigModal').modal('hide');
+                location.reload();
+            }).fail(xhr => {
                 alert('保存配置失败: ' + xhr.responseJSON.error);
             });
         }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+    
+    <!-- 邮箱配置模态框 -->
+    <div class="modal fade" id="emailConfigModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">SMTP服务器配置</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">SMTP服务器</label>
+                        <input type="text" id="smtp_server" class="form-control" 
+                               value="{{ config.get('smtp_config', {}).get('smtp_server', 'smtp.example.com') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SMTP端口</label>
+                        <input type="number" id="smtp_port" class="form-control" 
+                               value="{{ config.get('smtp_config', {}).get('smtp_port', 587) }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SMTP密码</label>
+                        <input type="password" id="smtp_password" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSmtpConfig()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script>
         function optimizeResume() {
