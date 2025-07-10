@@ -19,11 +19,18 @@ def index():
 @app.route("/api/add_file", methods=["POST"])
 def api_add_file():
     ws = WorkspaceManager()
-    file_path = request.json.get("path")
-    if not file_path:
-        return jsonify({"error": "Missing file path"}), 400
-    ws.add_file(file_path, "auto")
-    return jsonify({"status": "added", "path": file_path})
+    if 'files' not in request.files:
+        return jsonify({"error": "No files uploaded"}), 400
+    
+    try:
+        for file in request.files.getlist('files'):
+            # 保存文件到工作目录
+            file_path = str(Path(ws.workdir) / file.filename)
+            file.save(file_path)
+            ws.add_file(file_path, "auto")
+        return jsonify({"status": "added", "count": len(request.files.getlist('files'))})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/update_config", methods=["POST"])
 def api_update_config():

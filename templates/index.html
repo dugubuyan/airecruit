@@ -91,14 +91,32 @@
             $('#preview').html(marked.parse(content));
         }
 
-        function addFile() {
-            const filePath = $('#file-select').val();
-            $.post('/api/add_file', { path: filePath }, refreshFiles);
+        function handleFileSelect(files) {
+            const formData = new FormData();
+            Array.from(files).forEach(file => {
+                formData.append('files', file, file.webkitRelativePath || file.name);
+            });
+
+            $.ajax({
+                url: '/api/add_file',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: () => location.reload()
+            });
         }
 
         function refreshFiles() {
             $.get('/api/files', function(data) {
-                // 更新文件列表...
+                $('.file-list').html(
+                    data.map(f => `
+                        <li class="file-item">
+                            ${f} 
+                            <button class="btn btn-sm btn-danger float-end" onclick="removeFile('${f}')">×</button>
+                        </li>`
+                    ).join('')
+                );
             });
         }
         
