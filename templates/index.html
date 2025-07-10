@@ -24,7 +24,7 @@
                 <label class="form-label">AI模型</label>
                 <select id="model-select" class="form-select" onchange="updateConfig('model', this.value)">
                     {% for model in config.supported_models %}
-                    <option value="{{ model }}" {% if config.model == model %}selected{% endif %}>{{ model|replace('/', ' ')|replace(':', ' ')|title }}</option>
+                    <option value="{{ model }}" {% if config.model == model %}selected{% endif %}>{{ model.split(':')[0]|replace('/', ' ')|title }}{% if ':' in model %}:{{ model.split(':')[1] }}{% endif %}</option>
                     {% endfor %}
                 </select>
             </div>
