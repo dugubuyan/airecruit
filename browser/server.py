@@ -44,12 +44,12 @@ def api_update_config():
         if key == "model":
             set_model(value)
         elif key == "email":
-            # 保持与命令行模式一致的SMTP配置处理
+            # 从请求体中获取完整的SMTP配置
             set_smtp_config(
-                sender_email=value,
-                sender_password=request.json.get("sender_password", ""),
-                smtp_server=request.json.get("smtp_server", "smtp.example.com"),
-                smtp_port=int(request.json.get("smtp_port", 587))
+                sender_email=value.get("sender_email"),
+                sender_password=value.get("sender_password"),
+                smtp_server=value.get("smtp_server"),
+                smtp_port=int(value.get("smtp_port", 587))
             )
         return jsonify({"status": "updated", key: value})
     except Exception as e:
