@@ -158,16 +158,17 @@
                     <div class="mb-3">
                         <label class="form-label">SMTP服务器</label>
                         <input type="text" id="smtp_server" class="form-control" 
-                               value="{{ config.get('smtp_config', {}).get('smtp_server', 'smtp.example.com') }}">
+                               value="{{ config.get('smtp_config', {}).get('smtp_server', '') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">SMTP端口</label>
                         <input type="number" id="smtp_port" class="form-control" 
-                               value="{{ config.get('smtp_config', {}).get('smtp_port', 587) }}">
+                               value="{{ config.get('smtp_config', {}).get('smtp_port', '') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">SMTP密码</label>
-                        <input type="password" id="smtp_password" class="form-control">
+                        <input type="password" id="smtp_password" class="form-control" 
+                               value="{{ config.get('smtp_config', {}).get('sender_password', '') }}">
                     </div>
                 </div>
                 <div class="modal-footer">
