@@ -182,7 +182,7 @@
                     <div class="mb-3">
                         <label class="form-label">SMTP端口</label>
                         <input type="number" id="smtp_port" class="form-control" 
-                               value="{{ config.get('smtp_config', {}).get('smtp_port', '') }}">
+                               value="{{ config.get('smtp_config', {}).get('smtp_port', 587) }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">SMTP密码</label>
