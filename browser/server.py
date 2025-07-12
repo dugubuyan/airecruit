@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template
+from pathlib import Path
 from utils.workspace import WorkspaceManager
 from config import load_config, set_model, set_smtp_config
 from capacity.send_email import send_email
