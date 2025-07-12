@@ -145,6 +145,20 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+        
+    <script>
+    function updateConfig(key, value) {
+        $.post('/api/update_config', {
+            key: key,
+            value: value
+        }).then(() => {
+            console.log('配置更新成功');
+            location.reload();
+        }).fail(xhr => {
+            alert('配置更新失败: ' + xhr.responseJSON.error);
+        });
+    }
+    </script>
     
     <!-- 邮箱配置模态框 -->
     <div class="modal fade" id="emailConfigModal" tabindex="-1">
