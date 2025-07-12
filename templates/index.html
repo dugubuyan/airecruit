@@ -188,6 +188,8 @@
                         <label class="form-label">SMTP密码</label>
                         <input type="password" id="smtp_password" class="form-control" 
                                value="{{ config.get('smtp_config', {}).get('sender_password', '') }}">
+                        <input type="hidden" id="senderEmail" 
+                               value="{{ config.get('smtp_config', {}).get('sender_email', '') }}">
                     </div>
                 </div>
                 <div class="modal-footer">
