@@ -232,7 +232,17 @@
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ path: filePath }),
-                    success: () => location.reload(),
+                    success: (resp) => {
+                        // 直接更新文件列表而不刷新页面
+                        $('.file-list').html(
+                            resp.new_files.map(f => `
+                                <li class="file-item">
+                                    ${f} 
+                                    <button class="btn btn-sm btn-danger float-end" onclick="removeFile('${f}')">×</button>
+                                </li>`
+                            ).join('')
+                        );
+                    },
                     error: xhr => alert('文件删除失败: ' + xhr.responseJSON.error)
                 });
             }
