@@ -25,11 +25,12 @@ def api_add_file():
     
     try:
         # 确保工作目录存在
-        Path(ws.workdir).mkdir(parents=True, exist_ok=True)
+        work_dir = Path("workdir")
+        work_dir.mkdir(exist_ok=True)
         
         for file in request.files.getlist('files'):
             # 处理文件逻辑与命令行模式一致
-            file_path = Path(ws.workdir).resolve() / file.filename
+            file_path = work_dir.resolve() / file.filename
             file.save(str(file_path))
             
             # PDF/DOCX文件转换逻辑
