@@ -127,6 +127,27 @@
             $('#emailConfigModal').modal('show');
         }
 
+        function addFile() {
+            const selectedFile = $('#file-select').val();
+            if (!selectedFile) {
+                alert('请先选择要添加的文件');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('files', selectedFile);
+            
+            $.ajax({
+                url: '/api/add_file',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: () => location.reload(),
+                error: xhr => alert('文件添加失败: ' + xhr.responseJSON.error)
+            });
+        }
+
         function saveSmtpConfig() {
             const config = {
                 sender_email: $('#senderEmail').val(),
