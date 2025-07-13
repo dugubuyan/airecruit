@@ -28,10 +28,28 @@ def api_add_file():
         Path(ws.workdir).mkdir(parents=True, exist_ok=True)
         
         for file in request.files.getlist('files'):
-            # 保存文件到工作目录（绝对路径）
-            file_path = str(Path(ws.workdir).resolve() / file.filename)
-            file.save(file_path)
-            ws.add_file(file_path, "auto")
+            # 处理文件逻辑与命令行模式一致
+            file_path = Path(ws.workdir).resolve() / file.filename
+            file.save(str(file_path))
+            
+            # PDF/DOCX文件转换逻辑
+            if file_path.suffix.lower() in ('.pdf', '.docx'):
+                md_path = file_path.with_suffix('.md')
+                try:
+                    if file_path.suffix.lower() == '.pdf':
+                        from utils.file_utils import convert_pdf_to_md
+                        convert_pdf_to_md(str(file_path), str(md_path))
+                    else:
+                        from utils.file_utils import convert_docx_to_md
+                        convert_docx_to_md(str(file_path), str(md_path))
+                    ws.add_file(str(md_path), 'auto')
+                except Exception as e:
+                    return jsonify({"error": f"文件转换失败: {str(e)}"}), 500
+            # 文本文件直接添加
+            elif file_path.suffix.lower() in ('.txt', '.md'):
+                ws.add_file(str(file_path.resolve()), 'auto')
+            else:
+                return jsonify({"error": f"不支持的文件类型: {file_path.suffix}"}), 400
         return jsonify({"status": "added", "count": len(request.files.getlist('files'))})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
