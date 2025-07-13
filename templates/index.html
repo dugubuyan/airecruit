@@ -43,13 +43,8 @@
             <div class="mb-3">
                 <label class="form-label">添加文件</label>
                 <div class="input-group">
-                    <select id="file-select" class="form-select">
-                        <option value="">选择文件...</option>
-                        {% for f in available_files %}
-                        <option value="{{ f }}">{{ f }}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="btn btn-primary" onclick="addFile()">添加</button>
+                    <input type="file" id="file-input" class="form-control" multiple style="display: none">
+                    <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">选择文件</button>
                 </div>
             </div>
         </div>
@@ -127,15 +122,14 @@
             $('#emailConfigModal').modal('show');
         }
 
-        function addFile() {
-            const selectedFile = $('#file-select').val();
-            if (!selectedFile) {
-                alert('请先选择要添加的文件');
-                return;
-            }
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length === 0) return;
             
             const formData = new FormData();
-            formData.append('files', selectedFile);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
             
             $.ajax({
                 url: '/api/add_file',
@@ -146,7 +140,7 @@
                 success: () => location.reload(),
                 error: xhr => alert('文件添加失败: ' + xhr.responseJSON.error)
             });
-        }
+        });
 
         function saveSmtpConfig() {
             const config = {
