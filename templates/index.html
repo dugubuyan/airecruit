@@ -121,12 +121,12 @@
             $('#emailConfigModal').modal('show');
         }
 
-        function handleFileUpload() {
+        function handleFileAdded() {
             const files = document.getElementById('file-input').files;
             const fileType = document.getElementById('file-type').value;
             
             if (files.length === 0) {
-                alert('请先选择要上传的文件');
+                alert('请先选择要添加的文件');
                 return;
             }
             
@@ -202,7 +202,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">上传文件</h5>
+                    <h5 class="modal-title">添加文件</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -213,7 +213,7 @@
                     <div class="mb-3">
                         <label class="form-label">文件类型</label>
                         <select id="file-type" class="form-select">
-                            <option value="auto">自动识别（PDF/DOCX）</option>
+                            <option value="auto">自动识别</option>
                             <option value="resume">简历</option>
                             <option value="jd">职位描述</option>
                         </select>
@@ -221,7 +221,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="handleFileUpload()">上传</button>
+                    <button type="button" class="btn btn-primary" onclick="handleFileAdded()">添加</button>
                 </div>
             </div>
         </div>
