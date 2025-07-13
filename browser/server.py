@@ -62,7 +62,8 @@ def api_update_config():
 @app.route("/api/files", methods=["GET"])
 def api_files():
     ws = WorkspaceManager()
-    return jsonify(ws.list_files())
+    # 保持与命令行模式一致的返回格式（仅文件路径列表）
+    return jsonify([f['path'] for f in ws.config['workspace_files']])
 
 @app.route("/api/remove_file", methods=["POST"])
 def api_remove_file():
