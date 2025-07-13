@@ -32,7 +32,7 @@
                 <label class="form-label">工作邮箱</label>
                 <div class="input-group">
                     <input type="email" id="email" class="form-control" 
-                           value="{{ config.get('smtp_config', {}).get('sender_email', '') }}"
+                           value="{{ config.get('email', '') }}"
                            readonly>
                     <button class="btn btn-outline-secondary" type="button" onclick="showEmailConfig()">设置</button>
                 </div>
@@ -177,20 +177,20 @@
                     <div class="mb-3">
                         <label class="form-label">SMTP服务器</label>
                         <input type="text" id="smtp_server" class="form-control" 
-                               value="{{ config.get('smtp_config', {}).get('smtp_server', '') }}">
+                               value="{{ config.get('smtp_server', '') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">SMTP端口</label>
                         <input type="number" id="smtp_port" class="form-control" 
-                               value="{{ config.get('smtp_config', {}).get('smtp_port', 587) }}">
+                               value="{{ config.get('smtp_port', 587) }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">SMTP密码</label>
                         <input type="password" id="smtp_password" class="form-control" 
-                               value="{{ config.get('smtp_config', {}).get('sender_password', '') }}"
+                               value="{{ config.get('sender_password', '') }}"
                                placeholder="请输入SMTP授权密码">
                         <input type="hidden" id="senderEmail" 
-                               value="{{ config.get('smtp_config', {}).get('sender_email', '') }}">
+                               value="{{ config.get('sender_email', '') }}">
                     </div>
                 </div>
                 <div class="modal-footer">
