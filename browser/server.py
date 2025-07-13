@@ -24,9 +24,12 @@ def api_add_file():
         return jsonify({"error": "No files uploaded"}), 400
     
     try:
+        # 确保工作目录存在
+        Path(ws.workdir).mkdir(parents=True, exist_ok=True)
+        
         for file in request.files.getlist('files'):
-            # 保存文件到工作目录
-            file_path = str(Path(ws.workdir) / file.filename)
+            # 保存文件到工作目录（绝对路径）
+            file_path = str(Path(ws.workdir).resolve() / file.filename)
             file.save(file_path)
             ws.add_file(file_path, "auto")
         return jsonify({"status": "added", "count": len(request.files.getlist('files'))})
