@@ -43,16 +43,7 @@
             <div class="mb-3">
                 <label class="form-label">添加文件</label>
                 <div class="input-group">
-                    <input type="file" id="file-input" class="form-control" multiple style="display: none">
-                    <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">选择文件</button>
-                </div>
-                <div class="mt-2">
-                    <label class="form-label">文件类型</label>
-                    <select id="file-type" class="form-select">
-                        <option value="auto">自动识别（PDF/DOCX）</option>
-                        <option value="resume">简历</option>
-                        <option value="jd">职位描述</option>
-                    </select>
+                    <button class="btn btn-primary" type="button" onclick="$('#fileModal').modal('show')">选择文件</button>
                 </div>
             </div>
         </div>
@@ -130,12 +121,16 @@
             $('#emailConfigModal').modal('show');
         }
 
-        document.getElementById('file-input').addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (files.length === 0) return;
+        function handleFileUpload() {
+            const files = document.getElementById('file-input').files;
+            const fileType = document.getElementById('file-type').value;
+            
+            if (files.length === 0) {
+                alert('请先选择要上传的文件');
+                return;
+            }
             
             const formData = new FormData();
-            const fileType = document.getElementById('file-type').value;
             formData.append('file_type', fileType);
             
             for (let i = 0; i < files.length; i++) {
@@ -148,10 +143,13 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: () => location.reload(),
+                success: () => {
+                    $('#fileModal').modal('hide');
+                    location.reload();
+                },
                 error: xhr => alert('文件添加失败: ' + xhr.responseJSON.error)
             });
-        });
+        }
 
         function saveSmtpConfig() {
             const config = {
@@ -199,6 +197,36 @@
     }
     </script>
     
+    <!-- 文件上传模态框 -->
+    <div class="modal fade" id="fileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">上传文件</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">选择文件</label>
+                        <input type="file" id="file-input" class="form-control" multiple>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">文件类型</label>
+                        <select id="file-type" class="form-select">
+                            <option value="auto">自动识别（PDF/DOCX）</option>
+                            <option value="resume">简历</option>
+                            <option value="jd">职位描述</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="handleFileUpload()">上传</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 邮箱配置模态框 -->
     <div class="modal fade" id="emailConfigModal" tabindex="-1">
         <div class="modal-dialog">
