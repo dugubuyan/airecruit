@@ -28,6 +28,8 @@ def api_add_file():
         work_dir = Path("workdir")
         work_dir.mkdir(exist_ok=True)
         
+        file_type = request.form.get('file_type', 'auto')  # 获取用户选择的类型
+        
         for file in request.files.getlist('files'):
             # 处理文件逻辑与命令行模式一致
             file_path = work_dir.resolve() / file.filename
@@ -43,12 +45,12 @@ def api_add_file():
                     else:
                         from utils.file_utils import convert_docx_to_md
                         convert_docx_to_md(str(file_path), str(md_path))
-                    ws.add_file(str(md_path), 'auto')
+                    ws.add_file(str(md_path), file_type)
                 except Exception as e:
                     return jsonify({"error": f"文件转换失败: {str(e)}"}), 500
             # 文本文件直接添加
             elif file_path.suffix.lower() in ('.txt', '.md'):
-                ws.add_file(str(file_path.resolve()), 'auto')
+                ws.add_file(str(file_path.resolve()), file_type)
             else:
                 return jsonify({"error": f"不支持的文件类型: {file_path.suffix}"}), 400
         return jsonify({"status": "added", "count": len(request.files.getlist('files'))})

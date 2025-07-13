@@ -46,6 +46,14 @@
                     <input type="file" id="file-input" class="form-control" multiple style="display: none">
                     <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">选择文件</button>
                 </div>
+                <div class="mt-2">
+                    <label class="form-label">文件类型</label>
+                    <select id="file-type" class="form-select">
+                        <option value="auto">自动识别（PDF/DOCX）</option>
+                        <option value="resume">简历</option>
+                        <option value="jd">职位描述</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -127,6 +135,9 @@
             if (files.length === 0) return;
             
             const formData = new FormData();
+            const fileType = document.getElementById('file-type').value;
+            formData.append('file_type', fileType);
+            
             for (let i = 0; i < files.length; i++) {
                 formData.append('files', files[i]);
             }
