@@ -33,7 +33,7 @@ def api_add_file():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/update_config", methods=["POST"])
+@app.route("/api/update_config", methods=["POST"], strict_slashes=False)
 def api_update_config():
     key = request.json.get("key")
     value = request.json.get("value")

@@ -132,14 +132,19 @@
                 smtp_port: $('#smtp_port').val()
             };
             
-            $.post('/api/update_config', {
-                key: 'email',
-                value: {
-                    sender_email: $('#senderEmail').val(),
-                    sender_password: $('#smtp_password').val(),
-                    smtp_server: $('#smtp_server').val(),
-                    smtp_port: $('#smtp_port').val()
-                }
+            $.ajax({
+                url: '/api/update_config',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    key: 'email',
+                    value: {
+                        sender_email: $('#senderEmail').val(),
+                        sender_password: $('#smtp_password').val(),
+                        smtp_server: $('#smtp_server').val(),
+                        smtp_port: $('#smtp_port').val()
+                    }
+                })
             }).then(() => {
                 $('#emailConfigModal').modal('hide');
                 location.reload();
