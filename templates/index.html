@@ -225,6 +225,19 @@
     </div>
     
     <script>
+        function removeFile(filePath) {
+            if (confirm('确定要删除该文件吗？')) {
+                $.ajax({
+                    url: '/api/remove_file',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ path: filePath }),
+                    success: () => location.reload(),
+                    error: xhr => alert('文件删除失败: ' + xhr.responseJSON.error)
+                });
+            }
+        }
+
         function optimizeResume() {
             fetch('/api/optimize', {
                 method: 'POST',
