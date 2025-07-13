@@ -72,19 +72,15 @@ def api_remove_file():
         return jsonify({"error": "Missing file path"}), 400
     
     try:
-        # 转换为绝对路径并与工作目录比对
-        abs_path = str(Path(ws.workdir).resolve() / file_path)
-        if not abs_path.startswith(str(Path(ws.workdir).resolve())):
-            return jsonify({"error": "Invalid file path"}), 400
-            
-        # 调用工作区管理器的移除方法
-        ws.remove_files([abs_path])
+        # 直接调用工作区管理器的移除方法（保持与命令行模式一致）
+        ws.remove_files([file_path])
         
         # 返回更新后的文件列表
         return jsonify({
             "status": "removed",
             "path": file_path,
-            "new_files": ws.list_files()  # 返回最新文件列表
+            # 返回原始文件名列表（与命令行模式显示一致）
+            "new_files": [f['path'] for f in ws.config['workspace_files']]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
