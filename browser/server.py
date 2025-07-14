@@ -86,6 +86,44 @@ def api_files():
     # 保持与命令行模式一致的返回格式（仅文件路径列表）
     return jsonify([f['path'] for f in ws.config['workspace_files']])
 
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    ws = WorkspaceManager()
+    data = request.json
+    message = data.get('message')
+    
+    resumes = ws.get_resumes()
+    jds = ws.get_jds()
+    system_msg = get_system_prompt(resumes, jds)
+    
+    messages = [{"role": "system", "content": system_msg}]
+    messages.append({"role": "user", "content": message})
+    
+    try:
+        # 调用AI接口
+        response = completion(
+            model=get_model(),
+            messages=messages,
+            temperature=0.3
+        )
+        ai_reply = response.choices[0].message.content
+        
+        # 解析操作指令
+        operation = None
+        operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
+        if operation_match:
+            operation_content = operation_match.group(1).strip()
+            operation = json.loads(operation_content)
+            ai_reply = ai_reply.replace(operation_match.group(0), '').strip()
+            
+        return jsonify({
+            "reply": ai_reply,
+            "operation": operation
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/remove_file", methods=["POST"])
 def api_remove_file():
     ws = WorkspaceManager()

@@ -121,11 +121,44 @@
 
             addMessage('user', message);
             input.val('');
-            
-            // 模拟AI回复 - 需要连接真实AI接口
-            setTimeout(() => {
-                addMessage('assistant', `已收到您的消息：\n\`\`\`\n${message}\n\`\`\``);
-            }, 1000);
+
+            $.ajax({
+                url: '/api/chat',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ message: message }),
+                success: function(response) {
+                    addMessage('assistant', response.reply);
+                    
+                    // 解析并执行操作
+                    if (response.operation) {
+                        const { action, params } = response.operation;
+                        if (action === 'export_to_pdf') {
+                            exportToPDF(params.content);
+                        } else if (action === 'send_email') {
+                            sendEmail(params.recipient, params.subject, params.body);
+                        }
+                    }
+                },
+                error: xhr => addMessage('assistant', `请求失败: ${xhr.responseJSON.error}`)
+            });
+        }
+
+        function exportToPDF(content) {
+            // 调用后端PDF导出接口
+            $.post('/api/export_pdf', { content: content })
+                .then(() => addMessage('assistant', 'PDF导出成功'))
+                .catch(xhr => addMessage('assistant', `PDF导出失败: ${xhr.responseJSON.error}`));
+        }
+
+        function sendEmail(recipient, subject, body) {
+            // 调用后端邮件发送接口
+            $.post('/api/send_email', { 
+                recipient: recipient,
+                subject: subject,
+                body: body
+            }).then(() => addMessage('assistant', '邮件发送成功'))
+              .catch(xhr => addMessage('assistant', `邮件发送失败: ${xhr.responseJSON.error}`));
         }
 
         function handleFileSelect(files) {
