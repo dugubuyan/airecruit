@@ -118,18 +118,28 @@ def api_chat():
         )
         ai_reply = response.choices[0].message.content
         
-        # 解析操作指令
+        # 解析并执行操作指令
         operation = None
         operation_match = re.search(r'```json\n(.*?)\n```', ai_reply, re.DOTALL)
         if operation_match:
             operation_content = operation_match.group(1).strip()
             operation = json.loads(operation_content)
             ai_reply = ai_reply.replace(operation_match.group(0), '').strip()
+
+            # 执行实际操作（与命令行模式一致）
+            try:
+                if operation['action'] == 'export_to_pdf':
+                    from capacity.pdf_export import export_to_pdf
+                    pdf_path = export_to_pdf(operation['params']['content'])
+                    ai_reply += f"\n\nPDF已生成：{pdf_path}"
+                elif operation['action'] == 'send_email':
+                    from capacity.send_email import send_email
+                    send_email(**operation['params'])
+                    ai_reply += f"\n\n邮件已发送至：{operation['params']['recipient']}"
+            except Exception as e:
+                ai_reply += f"\n\n操作执行失败：{str(e)}"
             
-        return jsonify({
-            "reply": ai_reply,
-            "operation": operation
-        })
+        return jsonify({"reply": ai_reply})
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
