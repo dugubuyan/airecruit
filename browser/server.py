@@ -130,12 +130,19 @@ def api_chat():
             try:
                 if operation['action'] == 'export_to_pdf':
                     from capacity.pdf_export import export_to_pdf
-                    pdf_path = export_to_pdf(operation['params']['content'])
+                    # 从工作区获取最新内容
+                    pdf_path = export_to_pdf(operation.get('content', ''))  
                     ai_reply += f"\n\nPDF已生成：{pdf_path}"
                 elif operation['action'] == 'send_email':
                     from capacity.send_email import send_email
-                    send_email(**operation['params'])
-                    ai_reply += f"\n\n邮件已发送至：{operation['params']['recipient']}"
+                    # 直接使用operation中的字段而非params
+                    send_email(
+                        recipient=operation['recipient'],
+                        subject=operation.get('subject', '求职申请材料'),
+                        body=operation['body'],
+                        has_attachment=operation.get('has_attachment', False)
+                    )
+                    ai_reply += f"\n\n邮件已发送至：{operation['recipient']}"
             except Exception as e:
                 ai_reply += f"\n\n操作执行失败：{str(e)}"
             
