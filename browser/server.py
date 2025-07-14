@@ -106,7 +106,7 @@ def api_chat():
     # 构建消息数组：系统提示 + 历史对话 + 最新消息
     messages = [{"role": "system", "content": system_msg}]
     for entry in chat_history:
-        messages.append({"role": entry.role, "content": entry.content})
+        messages.append({"role": entry['role'], "content": entry['content']})
     messages.append({"role": "user", "content": message})
     
     try:
