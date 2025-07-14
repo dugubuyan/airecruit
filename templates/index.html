@@ -96,6 +96,7 @@
         let chatHistory = [];
 
         function addMessage(role, content) {
+            chatHistory.push({ role: role, content: content });
             const timestamp = new Date().toLocaleTimeString();
             const messageHtml = `
                 <div class="message ${role} mb-3">
@@ -126,7 +127,13 @@
                 url: '/api/chat',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ message: message }),
+                data: JSON.stringify({ 
+                    message: message,
+                    history: chatHistory.map(entry => ({
+                        role: entry.role,
+                        content: entry.content
+                    }))
+                }),
                 success: function(response) {
                     addMessage('assistant', response.reply);
                     

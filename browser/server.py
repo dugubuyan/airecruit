@@ -100,7 +100,13 @@ def api_chat():
     jds = ws.get_jds()
     system_msg = get_system_prompt(resumes, jds)
     
+    # 获取完整对话历史（包含之前的多轮对话）
+    chat_history = data.get('history', [])
+    
+    # 构建消息数组：系统提示 + 历史对话 + 最新消息
     messages = [{"role": "system", "content": system_msg}]
+    for entry in chat_history:
+        messages.append({"role": entry.role, "content": entry.content})
     messages.append({"role": "user", "content": message})
     
     try:
