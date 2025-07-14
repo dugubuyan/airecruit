@@ -53,7 +53,7 @@
             {% for f in workspace_files %}
             <li class="file-item">
                 {{ f.split('/')[-1] }} 
-                <button class="btn btn-sm btn-danger float-end" onclick="removeFile({{ f | tojson | safe }})">×</button>
+                <button class="btn btn-sm btn-danger float-end" onclick="removeFile({{ loop.index0 }})">×</button>
             </li>
             {% endfor %}
         </ul>
@@ -264,8 +264,7 @@
     </div>
     
     <script>
-        function removeFile(filePath) {
-            console.log("removeFile:", filePath)
+        function removeFile(index) {
             if (confirm('确定要删除该文件吗？')) {
                 $.ajax({
                     url: '/api/remove_file',
@@ -275,10 +274,10 @@
                     success: (resp) => {
                         // 直接更新文件列表而不刷新页面
                         $('.file-list').html(
-                            resp.new_files.map(f => `
+                            resp.new_files.map((f, index) => `
                                 <li class="file-item">
                                     ${f.split('/').pop()} 
-                                    <button class="btn btn-sm btn-danger float-end" onclick="removeFile(${JSON.stringify(f)})">×</button>
+                                    <button class="btn btn-sm btn-danger float-end" onclick="removeFile(${index})">×</button>
                                 </li>`
                             ).join('')
                         );

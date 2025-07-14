@@ -89,11 +89,12 @@ def api_files():
 @app.route("/api/remove_file", methods=["POST"])
 def api_remove_file():
     ws = WorkspaceManager()
-    file_path = request.json.get("path")
-    if not file_path:
-        return jsonify({"error": "Missing file path"}), 400
+    index = request.json.get("index")
+    if index is None or index < 0 or index >= len(ws.config['workspace_files']):
+        return jsonify({"error": "无效的文件索引"}), 400
     
     try:
+        file_path = ws.config['workspace_files'][index]['path']
         # 直接调用工作区管理器的移除方法（保持与命令行模式一致）
         ws.remove_files([file_path])
         
