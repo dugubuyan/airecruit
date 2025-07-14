@@ -265,7 +265,7 @@
     
     <script>
         function removeFile(filePath) {
-            console.log("removeFile:".filePath)
+            console.log("removeFile:", filePath)
             if (confirm('确定要删除该文件吗？')) {
                 $.ajax({
                     url: '/api/remove_file',
@@ -277,8 +277,8 @@
                         $('.file-list').html(
                             resp.new_files.map(f => `
                                 <li class="file-item">
-                                    ${f} 
-                                    <button class="btn btn-sm btn-danger float-end" onclick="removeFile('${f}')">×</button>
+                                    ${f.split('/').pop()} 
+                                    <button class="btn btn-sm btn-danger float-end" onclick="removeFile(${JSON.stringify(f)})">×</button>
                                 </li>`
                             ).join('')
                         );
