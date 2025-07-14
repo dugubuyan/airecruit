@@ -52,8 +52,8 @@
         <ul class="file-list">
             {% for f in workspace_files %}
             <li class="file-item">
-                {{ f }} 
-                <button class="btn btn-sm btn-danger float-end" onclick="removeFile('{{ f }}')">×</button>
+                {{ f.split('/')[-1] }} 
+                <button class="btn btn-sm btn-danger float-end" onclick="removeFile('{{ f | tojson | safe }}')">×</button>
             </li>
             {% endfor %}
         </ul>
