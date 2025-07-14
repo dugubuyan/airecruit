@@ -265,6 +265,7 @@
     
     <script>
         function removeFile(filePath) {
+            console.log("removeFile:".filePath)
             if (confirm('确定要删除该文件吗？')) {
                 $.ajax({
                     url: '/api/remove_file',
