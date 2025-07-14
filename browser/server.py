@@ -97,25 +97,11 @@ def api_remove_file():
         # 直接调用工作区管理器的移除方法（保持与命令行模式一致）
         ws.remove_files([file_path])
         
-        # 删除实际文件（包括原始文件和转换后的markdown文件）
-        work_dir = Path("workdir")
-        file_path_obj = Path(file_path)
-        
-        # 删除原始文件（如果存在）
-        original_file = work_dir / file_path_obj.name
-        if original_file.exists():
-            original_file.unlink()
-            
-        # 删除转换后的markdown文件（如果存在）
-        md_file = file_path_obj.with_suffix('.md')
-        if md_file.exists():
-            md_file.unlink()
-        
-        # 返回更新后的文件列表（仅显示文件名）
+        # 保持与命令行模式一致的文件移除逻辑（仅从工作区移除，不删除实际文件）
         return jsonify({
             "status": "removed",
             "path": file_path,
-            "new_files": [str(f['path']) for f in ws.config['workspace_files']]
+            "new_files": [Path(f['path']).name for f in ws.config['workspace_files']]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
