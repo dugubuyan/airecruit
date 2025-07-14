@@ -270,14 +270,14 @@
                     url: '/api/remove_file',
                     method: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ path: filePath }),
+                    data: JSON.stringify({ index: index }),
                     success: (resp) => {
                         // 直接更新文件列表而不刷新页面
                         $('.file-list').html(
-                            resp.new_files.map((f, index) => `
+                            resp.new_files.map((f, i) => `
                                 <li class="file-item">
-                                    ${f.split('/').pop()} 
-                                    <button class="btn btn-sm btn-danger float-end" onclick="removeFile(${index})">×</button>
+                                    ${f} 
+                                    <button class="btn btn-sm btn-danger float-end" onclick="removeFile(${i})">×</button>
                                 </li>`
                             ).join('')
                         );
