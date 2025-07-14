@@ -115,7 +115,7 @@ def api_remove_file():
         return jsonify({
             "status": "removed",
             "path": file_path,
-            "new_files": [str(Path(f['path']).name) for f in ws.config['workspace_files']]
+            "new_files": [str(f['path']) for f in ws.config['workspace_files']]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -109,8 +109,8 @@
                 $('.file-list').html(
                     data.map(f => `
                         <li class="file-item">
-                            ${f} 
-                            <button class="btn btn-sm btn-danger float-end" onclick="removeFile('${f}')">×</button>
+                            ${f.split('/').pop()} 
+                            <button class="btn btn-sm btn-danger float-end" onclick="removeFile(${JSON.stringify(f)})">×</button>
                         </li>`
                     ).join('')
                 );
