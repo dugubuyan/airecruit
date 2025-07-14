@@ -53,7 +53,7 @@
             {% for f in workspace_files %}
             <li class="file-item">
                 {{ f.split('/')[-1] }} 
-                <button class="btn btn-sm btn-danger float-end" onclick="removeFile('{{ f | tojson | safe }}')">×</button>
+                <button class="btn btn-sm btn-danger float-end" onclick="removeFile({{ f | tojson | safe }})">×</button>
             </li>
             {% endfor %}
         </ul>
@@ -110,7 +110,7 @@
                     data.map(f => `
                         <li class="file-item">
                             ${f.split('/').pop()} 
-                            <button class="btn btn-sm btn-danger float-end" onclick="removeFile(${JSON.stringify(f)})">×</button>
+                            <button class="btn btn-sm btn-danger float-end" onclick="removeFile(\`${JSON.stringify(f).replace(/`/g, '\\`')}\`)">×</button>
                         </li>`
                     ).join('')
                 );
