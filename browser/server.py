@@ -128,10 +128,10 @@ def api_chat():
 
             # 执行实际操作（与命令行模式一致）
             try:
-                if operation['action'] == 'export_to_pdf':
+                if operation['action'] == 'export2pdf':
                     from capacity.pdf_export import export_to_pdf
                     # 从工作区获取最新内容
-                    pdf_path = export_to_pdf(operation.get('content', ''))  
+                    pdf_path = export_to_pdf(operation.get('md_content', ''))  
                     ai_reply += f"\n\nPDF已生成：{pdf_path}"
                 elif operation['action'] == 'send_email':
                     from capacity.send_email import send_email
