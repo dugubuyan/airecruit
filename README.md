@@ -12,31 +12,29 @@ https://github.com/user-attachments/assets/bdadbdda-edde-48c7-8b9d-8da520bf3da0
 ## English Version
 
 ### 📝 Project Overview
-An AI-powered recruitment assistant tool that provides resume optimization, job matching, and automated application features. Supports both CLI and web interface.
+An intelligent job-seeking assistant tool that provides resume optimization, position matching, and automated application features. Supports both command-line and web interfaces.
 
 ### 🚀 Features
-- Resume Optimization
-- Resume Summarization
-- Cover Letter Generation & Send Email
-- JD-based Filter Generation 
-- Position Recommendation
-- Contact Extraction & Send Email 
-- Web-based Management Interface
+- JD-based resume optimization with export to PDF
+- Cover letter generation
+- Automated email sending to HR (automatically extracts HR email from JD)
+- Web-based interface operation
+- Natural language conversation interface, no need to remember commands
 
 ### 📦 Installation
 ```bash
-git clone https://github.com/your-username/airecruit.git
+git clone [repository URL]
 cd airecruit
 pip install -r requirements.txt
 ```
 
 ### 🛠 Usage
+If not using local ollama models, please set up the LLM API key environment variable first. Reference: https://docs.litellm.ai/docs/providers
 #### CLI Mode
 ```bash
 # Example commands
-# chat mode
 python airecruit.py
-# use /work to begin
+# Use /work command to start workflow
 >/work
 ```
 
@@ -49,7 +47,7 @@ python airecruit.py --browser
 ### ⚙ Configuration
 Edit `.config.json` to set:
 - AI model preferences
-- Email templates
+- Email settings
 - Workspace paths
 
 ### 🤝 Contributing
@@ -79,8 +77,8 @@ pip install -r requirements.txt
 ```
 
 ### 🛠 使用指南
-#### 命令行模式
 如果不是ollama本地模型，请先设置大模型apikey环境变量，可参考https://docs.litellm.ai/docs/providers
+#### 命令行模式
 ```bash
 # 示例命令
 python airecruit.py
@@ -90,8 +88,8 @@ python airecruit.py
 
 #### 网页模式
 ```bash
-python airecruit.py
-# 访问 http://localhost:5000
+python airecruit.py --browser
+# 访问 http://localhost:5001
 ```
 
 ### ⚙ 配置说明
