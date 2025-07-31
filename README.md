@@ -21,9 +21,22 @@ An intelligent job-seeking assistant tool that provides resume optimization, pos
 - Web-based interface operation
 - Natural language conversation interface, no need to remember commands
 
+### 🧱 Prerequisites
+Ensure you have Python installed (recommended: Python 3.10+).We also recommend using a virtual environment to avoid dependency conflicts.
+
+#### Create and activate a virtual environment
+```bash
+# Create a virtual environment
+python3 -m venv airecruit
+# Activate it (Linux/macOS)
+source airecruit/bin/activate
+# Or on Windows
+airecruit\Scripts\activate
+```
+
 ### 📦 Installation
 ```bash
-git clone [repository URL]
+git clone https://github.com/dugubuyan/airecruit
 cd airecruit
 pip install -r requirements.txt
 ```
@@ -69,9 +82,21 @@ Edit `.config.json` to set:
 - 可以网页界面操作
 - 自然语言对话操作，无需记任何命令
 
+### 🧱 安装前提
+请确保已安装 Python（推荐版本：Python 3.10 及以上）。建议使用虚拟环境来避免依赖冲突。
+
+#### 创建并激活虚拟环境
+```bash
+# Create a virtual environment
+python3 -m venv airecruit
+# Activate it (Linux/macOS)
+source airecruit/bin/activate
+# Or on Windows
+airecruit\Scripts\activate
+```
 ### 📦 安装步骤
 ```bash
-git clone [项目仓库地址]
+git clone https://github.com/dugubuyan/airecruit
 cd airecruit
 pip install -r requirements.txt
 ```
