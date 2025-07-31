@@ -80,6 +80,7 @@ pip install -r requirements.txt
 
 ### 🛠 使用指南
 #### 命令行模式
+如果不是ollama本地模型，请先设置大模型apikey环境变量，可参考https://docs.litellm.ai/docs/providers
 ```bash
 # 示例命令
 python airecruit.py
